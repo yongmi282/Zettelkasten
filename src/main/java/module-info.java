@@ -9,6 +9,7 @@ open module de.danielluedecke.Zettelkasten {
     requires jdom2;
     requires javabib;
     requires opencsv;
+    requires com.formdev.flatlaf;
 
     exports de.danielluedecke.zettelkasten to appframework;
 }
