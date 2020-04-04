@@ -23,8 +23,8 @@ jobs:
           java-version: 11
           architecture: x86
       - name: build JRE
-        - run: |
-              sh ./scripts/build-jre.sh
+        run: |
+          sh ./scripts/build-jre.sh
       - name: Build with Maven
         run: mvn -B package -DskipTests --file pom.xml
       - name: Create Release
@@ -59,8 +59,8 @@ jobs:
         with:
           java-version: 11
       - name: build JRE
-              - run: |
-              sh ./scripts/build-jre.sh
+        run: |
+          sh ./scripts/build-jre.sh
       - name: Build with Maven
         run: mvn -B package -DskipTests --file pom.xml
       - name: Upload Release Asset
