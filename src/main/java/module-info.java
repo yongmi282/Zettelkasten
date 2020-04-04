@@ -1,10 +1,11 @@
-open module de.daniellluedecke.Zettelkasten {
+open module de.danielluedecke.Zettelkasten {
 
     requires java.desktop;
     requires java.logging;
+    requires org.apache.commons.lang3;
+
     requires appframework;
     requires swing.layout;
-    requires org.apache.commons.lang3;
     requires jdom2;
     requires javabib;
     requires opencsv;
