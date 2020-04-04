@@ -14,6 +14,8 @@
         <zkn.useGenIsoImage>false</zkn.useGenIsoImage>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.6.1</slf4j.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <profiles>
@@ -74,10 +76,6 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
-                <configuration>
-                    <source>11</source>
-                    <target>11</target>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -124,8 +122,8 @@
                 <version>1.7.0</version>
                 <configuration>
                     <jdk>
-                        <include>false</include>
-                        <!--  <location>target/jre</location> maybe an option for later-->
+                        <include>true</include>
+                        <location>target/jre</location>
                     </jdk>
                     <plist>
                         <CFBundleDisplayName>${project.name}</CFBundleDisplayName>
@@ -143,7 +141,6 @@
                         <useGenIsoImage>${zkn.useGenIsoImage}</useGenIsoImage>
                         <dmgFileName>${build.finalName}</dmgFileName>
                     </dmg>
-
                 </configuration>
                 <executions>
                     <execution>
@@ -177,6 +174,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>com.akathist.maven.plugins.launch4j</groupId>
                 <artifactId>launch4j-maven-plugin</artifactId>
@@ -189,6 +187,8 @@
                             <goal>launch4j</goal>
                         </goals>
                         <configuration>
+                            <!-- todo: if we should provide an installer in the future this variable should be true
+                            as windows complains when the wrapper exe is not signed in contrast to a non wrapping.-->
                             <dontWrapJar>false</dontWrapJar>
                             <headerType>gui</headerType>
                             <jar>target/${build.finalName}.jar</jar>
@@ -201,11 +201,12 @@
                             <manifest></manifest>
                             <icon>zkn2.ico</icon>
                             <jre>
-                                <minVersion>1.7.0</minVersion>
+                                <minVersion>${maven.compiler.target}</minVersion>
                                 <bundledJre64Bit>false</bundledJre64Bit>
                                 <bundledJreAsFallback>false</bundledJreAsFallback>
+                                <path>jre/</path>
                                 <jdkPreference>preferJre</jdkPreference>
-                                <runtimeBits>64/32</runtimeBits>
+                                <runtimeBits>32/64</runtimeBits>
                             </jre>
                             <splash>
                                 <file>splash.bmp</file>
