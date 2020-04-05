@@ -198,7 +198,6 @@
                             <downloadUrl>http://java.com/download</downloadUrl>
                             <stayAlive>false</stayAlive>
                             <restartOnCrash>false</restartOnCrash>
-                            <manifest></manifest>
                             <icon>zkn2.ico</icon>
                             <jre>
                                 <minVersion>${maven.compiler.target}</minVersion>
