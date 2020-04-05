@@ -127,8 +127,8 @@
                     </jdk>
                     <plist>
                         <CFBundleDisplayName>${project.name}</CFBundleDisplayName>
-                        <JVMMainClassName>de.danielluedecke.zettelkasten.ZettelkastenApp</JVMMainClassName>
-                        <JVMVersion>8+</JVMVersion>
+                        <JVMMainModuleName>de.danielluedecke.Zettelkasten</JVMMainModuleName>
+                        <JVMVersion>11+</JVMVersion>
                         <CFBundleDevelopmentRegion>German</CFBundleDevelopmentRegion>
                         <CFBundleName>${project.name}</CFBundleName>
                         <CFBundleDisplayName>${project.name}</CFBundleDisplayName>
