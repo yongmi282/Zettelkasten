@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Zettelkasten
+Comment=Zettelkasten - nach Niklas Luhmann
+Exec=java /opt/zettelkasten/jre/bin/java -jar /opt/zettelkasten/zettelkasten.jar
+Icon=/opt/zettelkasten/zkn3.png
+Terminal=false

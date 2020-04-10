@@ -1,0 +1,9 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: default-jre (>= 2:1.11) | java11-runtime
+Suggests: vlc, libxvidcore4, libfaac0, vlc-plugin-visualization
+Description: [[description]]
+Maintainer: Elias John <elias.john@e-werkzeug.eu>
