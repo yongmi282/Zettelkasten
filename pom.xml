@@ -314,6 +314,13 @@
             <artifactId>mac_widgets</artifactId>
             <version>0.9.5</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.vladsch.flexmark</groupId>
+            <artifactId>flexmark-all</artifactId>
+            <version>0.61.12</version>
+        </dependency>
+
         <dependency>
             <groupId>at.jta.winregistry</groupId>
             <artifactId>winregistry</artifactId>

@@ -32,6 +32,11 @@
  */
 package de.danielluedecke.zettelkasten.util;
 
+import com.vladsch.flexmark.html.HtmlRenderer;
+import com.vladsch.flexmark.parser.Parser;
+import com.vladsch.flexmark.parser.ParserEmulationProfile;
+import com.vladsch.flexmark.util.data.MutableDataHolder;
+import com.vladsch.flexmark.util.data.MutableDataSet;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
 import de.danielluedecke.zettelkasten.database.BibTex;
 import de.danielluedecke.zettelkasten.util.misc.Comparer;
@@ -1342,7 +1347,8 @@ public class HtmlUbbUtil {
         // check whether markdown is activated
         // if yes, replace markdown here
         if (isMarkdownActivated) {
-            dummy = dummy.replace("[br]", "\n");
+
+            /*dummy = dummy.replace("[br]", "\n");
             // quotes
             dummy = dummy.replaceAll("(^|\\n)(\\> )(.*)", "[q]$3[/q]");
             // after quotes have been replaced, replace < and > signs
@@ -1378,7 +1384,8 @@ public class HtmlUbbUtil {
             dummy = fixBrokenTags(dummy, "\\[img\\]([^|]*)(.*?)\\[/img\\]");
             dummy = fixBrokenTags(dummy, "\\(http://([^\\)]+)\\)");
             // replace line breaks
-            dummy = dummy.replace("\n", "[br]");
+            dummy = dummy.replace("\n", "[br]");*/
+
         } else {
             // if we don't have markdown, and thus no quotes-syntax with "> ...",
             // we need to replace non-tag-< and > here
@@ -1388,8 +1395,7 @@ public class HtmlUbbUtil {
         }
         // inline-code blocks formatting
         dummy = dummy.replaceAll("\\`(.*?)\\`", "<code>$1</code>");
-        // new line
-        dummy = dummy.replace("[br]", "<br>");
+
         // hyperlinks
         dummy = dummy.replaceAll("\\[([^\\[]+)\\]\\(http([^\\)]+)\\)", "<a href=\"http$2\" title=\"http$2\">$1</a>");
         // bold formatting: [f] becomes <b>
@@ -1452,6 +1458,20 @@ public class HtmlUbbUtil {
         dummy = dummy.replaceAll("\\[z ([^\\[]*)\\](.*?)\\[/z\\]", "<a class=\"manlink\" href=\"#z_$1\">$2</a>");
         // remove all new lines after headlines
         dummy = dummy.replaceAll("\\</h([^\\<]*)\\>\\<br\\>", "</h$1>");
+
+        if (isMarkdownActivated) {
+            dummy = dummy.replace("[br]", "\n");
+
+            MutableDataSet options = new MutableDataSet();
+            options.setFrom(ParserEmulationProfile.MULTI_MARKDOWN);
+            Parser parser = Parser.builder(options).build();
+            HtmlRenderer renderer = HtmlRenderer.builder(options).build();
+            System.out.println(parser.parse(dummy));
+            dummy = renderer.render(parser.parse(dummy));
+            System.out.println(dummy);
+        } else {
+            dummy = dummy.replace("[br]", "<br/>");
+        }
         return dummy;
     }
 
