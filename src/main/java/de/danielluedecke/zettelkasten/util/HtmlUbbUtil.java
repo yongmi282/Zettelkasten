@@ -915,8 +915,11 @@ public class HtmlUbbUtil {
      */
     public static String convertUbbToHtml(Settings settings, Daten dataObj, BibTex bibtexObj, String c, int sourceframe, boolean isExport, boolean createHTMLFootnotes) {
         // create new string
+
         String dummy = replaceUbbToHtml(c, settings.getMarkdownActivated(), (Constants.FRAME_DESKTOP == sourceframe), isExport);
         // add title attributes to manual links
+        Constants.zknlogger.info("Content: " + dummy);
+
         int pos = 0;
         while (pos != -1) {
             // find manual link tag
@@ -957,7 +960,6 @@ public class HtmlUbbUtil {
         dummy = convertHyperlinks(dummy);
         // convert images, including resizing images
         dummy = convertImages(dataObj, settings, dummy, isExport);
-        Constants.zknlogger.info(dummy);
         // convert possible table tags to html
         dummy = convertTablesToHTML(dummy);
         // convert possible form tags to html
@@ -1005,6 +1007,8 @@ public class HtmlUbbUtil {
                 }
             }
         }
+        dummy = Jsoup.clean(dummy, relaxedWithoutImageProtocol());
+
         return dummy;
     }
 
@@ -1377,8 +1381,14 @@ public class HtmlUbbUtil {
             }
         }
 
+        Constants.zknlogger.info("Hier: " + dummy);
+
+        //Since the table notation is apparently not standard-compliant,
+        // we have to bypass the BBProcessor.
+        dummy = dummy.replace("table]","table-bp]");
         TextProcessor processor = BBProcessorFactory.getInstance().create();
         dummy = processor.process(dummy);
+        dummy = dummy.replace("table-bp]","table]");
 
         // inline-code blocks formatting
         dummy = dummy.replaceAll("\\`(.*?)\\`", "<code>$1</code>");
@@ -1453,6 +1463,7 @@ public class HtmlUbbUtil {
 
         dummy = dummy.replace("[br]", "\n");
 
+
         if (isMarkdownActivated) {
             ResourceMap resourceMap = Application.getInstance(ZettelkastenApp.class).getContext().getResourceMap(ZettelkastenView.class);
 
@@ -1502,9 +1513,7 @@ public class HtmlUbbUtil {
             // images
 
         }
-        Constants.zknlogger.info("HERE: " + dummy);
 
-        dummy = Jsoup.clean(dummy, relaxedWithoutImageProtocol());
 
         return dummy;
     }
@@ -1637,6 +1646,7 @@ public class HtmlUbbUtil {
             pos = dummy.indexOf("[table]", pos);
             // when open-tag was found, go on and find end of table-tag
             if (pos != -1) {
+                Constants.zknlogger.info("table found");
 
                 // find closing-tag
                 end = dummy.indexOf("[/table]", pos);
@@ -1646,8 +1656,8 @@ public class HtmlUbbUtil {
                     // get table-content
                     String tablecontent = dummy.substring(pos + 7, end);
                     // get table rows
-                    //String[] tablerows = tablecontent.split(Pattern.quote("<br>"));
-                    String[] tablerows = tablecontent.split(Pattern.quote("\n"));
+                    String[] tablerows = tablecontent.split(Pattern.quote("<br>"));
+                    Constants.zknlogger.info("Tablerows: " + tablerows);
                     // init rowcounter
                     int rowcnt = 0;
                     // iterate all table rows
