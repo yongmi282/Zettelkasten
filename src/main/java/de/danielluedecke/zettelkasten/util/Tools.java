@@ -1313,7 +1313,7 @@ public class Tools {
         // bullet points: [*] becomes <li>
         dummy = dummy.replaceAll("\\[\\*\\](.*?)\\[/\\*\\]", "* $1[br]");
         // image
-        dummy = dummy.replaceAll("\\[img\\](.*?)\\[/img\\]", "![Bild]($1)");
+        dummy = dummy.replaceAll("\\[img\\](.*?)\\[/img\\]", Constants.FORMAT_MD_IMG_OPEN+"$1"+Constants.FORMAT_MD_IMG_CLOSE);
         return dummy;
     }
 

@@ -36,23 +36,16 @@ import com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
 import com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
-import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.ins.InsExtension;
-import com.vladsch.flexmark.ext.media.tags.MediaTagsExtension;
-import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension;
-import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterVisitor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.KeepType;
-import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
-import de.danielluedecke.zettelkasten.CInsertManualLink;
-import de.danielluedecke.zettelkasten.DesktopFrame;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
 import de.danielluedecke.zettelkasten.ZettelkastenView;
 import de.danielluedecke.zettelkasten.database.BibTex;
@@ -76,8 +69,6 @@ import java.util.regex.PatternSyntaxException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdom2.Element;
@@ -957,7 +948,7 @@ public class HtmlUbbUtil {
         dummy = convertFootnotes(dataObj, bibtexObj, settings, dummy, false, true);
         // convert movie-tags
         // dummy = dummy.replaceAll("\\[mov ([^\\[]*)\\]", "<a href=\"#mov$1\">Film</a>");
-        // highlight text segemtns
+        // highlight text segments
         dummy = convertUbbHighlightSegments(dummy);
         dummy = dummy.replaceAll("\\[s ([^\\[]*)\\](.*?)\\[/s\\]", "<span class=\"highlight_$1\">$2</span>");
         // autoconvert url's to hyperlinks
@@ -966,6 +957,7 @@ public class HtmlUbbUtil {
         dummy = convertHyperlinks(dummy);
         // convert images, including resizing images
         dummy = convertImages(dataObj, settings, dummy, isExport);
+        Constants.zknlogger.info(dummy);
         // convert possible table tags to html
         dummy = convertTablesToHTML(dummy);
         // convert possible form tags to html
@@ -981,7 +973,7 @@ public class HtmlUbbUtil {
                 dummy = highlightSearchTerms(dummy, HIGHLIGHT_STYLE_KEYWORDS);
             }
         }
-        // when we exort data to HTML-format, we can create tooltips for the footnotes...
+        // when we export data to HTML-format, we can create tooltips for the footnotes...
         if (isExport && createHTMLFootnotes) {
             // create tooltips for the footnotes.
             pos = 0;
@@ -1223,15 +1215,20 @@ public class HtmlUbbUtil {
                 if (pos2 != -1) {
                     try {
                         String path = dummy.substring(pos + 5, pos2);
-                        File imgfile = new File(path.substring(0, path.indexOf("|")));
-                        if (!imgfile.exists()) {
-                            // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
-                            // first insert the path to the image folder inside the img-src.
-                            dummy = dummy.substring(0, pos) + "[img]file://" + imgpath + dummy.substring(pos + 5);
+                        Constants.zknlogger.info("Path: " + path);
+                        if (path.startsWith("http")) {
+                            pos = pos2;
                         } else {
-                            // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
-                            // first insert the path to the image folder inside the img-src.
-                            dummy = dummy.substring(0, pos) + "[img]file://" + sep + dummy.substring(pos + 5);
+                            File imgfile = new File(path.substring(0, path.indexOf("|")));
+                            if (!imgfile.exists()) {
+                                // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
+                                // first insert the path to the image folder inside the img-src.
+                                dummy = dummy.substring(0, pos) + "[img]file://" + imgpath + dummy.substring(pos + 5);
+                            } else {
+                                // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
+                                // first insert the path to the image folder inside the img-src.
+                                dummy = dummy.substring(0, pos) + "[img]file://" + sep + dummy.substring(pos + 5);
+                            }
                         }
                     } catch (IndexOutOfBoundsException ex) {
                     }
@@ -1256,6 +1253,8 @@ public class HtmlUbbUtil {
         // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
         // first insert the path to the image folder inside the img-src.
 //        dummy = dummy.replace("[img]", "[img]file://"+imgpath);
+
+
         dummy = fixImagePaths(dummy, settings.getImagePath(dataObj.getUserImagePath(), true));
         // dummy = dummy.replaceAll("\\[img\\](.*?)\\[/img\\]", "<img src=\"$1\">");
         dummy = dummy.replaceAll("\\[img\\]([^|]*)(.*?)\\[/img\\]", "<img src=\"$1\">");
@@ -1450,6 +1449,10 @@ public class HtmlUbbUtil {
         // remove all new lines after headlines
         dummy = dummy.replaceAll("\\</h([^\\<]*)\\>\\<br\\>", "</h$1>");
 
+        //images to ubb so that file paths can get fixed.
+        dummy = dummy.replaceAll("[!]{1}\\[([^\\[]+)\\]\\(([^\\)]+)\\)", "[img]$2[/img]");
+
+
         dummy = dummy.replace("[br]", "\n");
 
         if (isMarkdownActivated) {
@@ -1466,6 +1469,8 @@ public class HtmlUbbUtil {
                     .set(HtmlRenderer.INDENT_SIZE, 2)
                     .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
                     .set(HtmlRenderer.SOFT_BREAK, "<br>")
+                    .set(Parser.SPACE_IN_LINK_ELEMENTS, true)
+                    .set(Parser.SPACE_IN_LINK_URLS, true)
                     .set(TablesExtension.COLUMN_SPANS, false)
                     .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
                     .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
@@ -1494,11 +1499,53 @@ public class HtmlUbbUtil {
             dummy = dummy.replace("href=\"#cr:","href=\"#cr_");
             dummy = dummy.replace("href=\"#z:","href=\"#z_");
 
-        }
+            // strike
+            dummy = dummy.replaceAll("---(.*?)---", "<strike>$1</strike>");
+            // images
 
-        dummy = Jsoup.clean(dummy, Whitelist.relaxed());
+        }
+        Constants.zknlogger.info("HERE: " + dummy);
+
+        dummy = Jsoup.clean(dummy, relaxedWithoutImageProtocol());
 
         return dummy;
+    }
+
+    private static String fixBrokenTags(String content, String regexpattern) {
+        try {
+            // we need to fix emphasing in image tags. if image file path has
+            // underscores, these have been replaced to italic / bold etc.
+            Pattern p = Pattern.compile(regexpattern);
+            // create matcher
+            Matcher m = p.matcher(content);
+            // save find-position
+            List<Integer> start = new ArrayList<>();
+            List<Integer> end = new ArrayList<>();
+            List<String> itag = new ArrayList<>();
+            // check for occurences
+            while (m.find()) {
+                // save grouping-positions
+                start.add(m.start());
+                end.add(m.end());
+                itag.add(m.group());
+            }
+            // have any image tags?
+            if (!start.isEmpty()) {
+                for (int i = start.size() - 1; i >= 0; i--) {
+                    // get image tag
+                    String imtag = itag.get(i).
+                            replaceAll(Pattern.quote("<b>"), "__").
+                            replaceAll(Pattern.quote("</b>"), "__").
+                            replaceAll(Pattern.quote("<i>"), "_").
+                            replaceAll(Pattern.quote("</i>"), "_");
+                    content = content.substring(0, start.get(i)) +
+                            imtag +
+                            content.substring(end.get(i), content.length());
+                }
+            }
+        } catch (PatternSyntaxException e) {
+        }
+        return content;
     }
     
     
@@ -2983,5 +3030,35 @@ public class HtmlUbbUtil {
         }
         // return finished entry
         return retval.toString();
+    }
+
+    public static Whitelist relaxedWithoutImageProtocol() {
+        return new Whitelist()
+                .addTags(
+                        "a", "b", "blockquote", "br", "caption", "cite", "code", "col",
+                        "colgroup", "dd", "div", "dl", "dt", "em", "h1", "h2", "h3", "h4", "h5", "h6",
+                        "i", "img", "li", "ol", "p", "pre", "q", "small", "span", "strike", "strong",
+                        "sub", "sup", "table", "tbody", "td", "tfoot", "th", "thead", "tr", "u",
+                        "ul")
+
+                .addAttributes("a", "href", "title")
+                .addAttributes("blockquote", "cite")
+                .addAttributes("col", "span", "width")
+                .addAttributes("colgroup", "span", "width")
+                .addAttributes("img", "align", "alt", "height", "src", "title", "width")
+                .addAttributes("ol", "start", "type")
+                .addAttributes("q", "cite")
+                .addAttributes("table", "summary", "width")
+                .addAttributes("td", "abbr", "axis", "colspan", "rowspan", "width")
+                .addAttributes(
+                        "th", "abbr", "axis", "colspan", "rowspan", "scope",
+                        "width")
+                .addAttributes("ul", "type")
+
+                .addProtocols("a", "href", "ftp", "http", "https", "mailto")
+                .addProtocols("blockquote", "cite", "http", "https")
+                .addProtocols("cite", "cite", "http", "https")
+                .addProtocols("q", "cite", "http", "https")
+                ;
     }
 }
