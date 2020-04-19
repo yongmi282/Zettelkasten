@@ -32,9 +32,22 @@
  */
 package de.danielluedecke.zettelkasten.util;
 
+import com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension;
+import com.vladsch.flexmark.ext.attributes.AttributesExtension;
+import com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtension;
+import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
+import com.vladsch.flexmark.ext.ins.InsExtension;
+import com.vladsch.flexmark.ext.media.tags.MediaTagsExtension;
+import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
+import com.vladsch.flexmark.ext.tables.TablesExtension;
+import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
+import com.vladsch.flexmark.util.ast.KeepType;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
@@ -58,6 +71,9 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.jdom2.Element;
 
 /**
@@ -1346,47 +1362,7 @@ public class HtmlUbbUtil {
         }
         // check whether markdown is activated
         // if yes, replace markdown here
-        if (isMarkdownActivated) {
-
-            /*dummy = dummy.replace("[br]", "\n");
-            // quotes
-            dummy = dummy.replaceAll("(^|\\n)(\\> )(.*)", "[q]$3[/q]");
-            // after quotes have been replaced, replace < and > signs
-            if (!isExport) {
-                dummy = dummy.replace(">", "&gt;").replace("<", "&lt;");
-            }
-            // bullets
-            dummy = dummy.replaceAll("(^|\\n)(\\d\\. )(.*)", "<ol><li>$3</li></ol>");
-            dummy = dummy.replace("</ol><ol>", "");
-            dummy = dummy.replaceAll("(^|\\n)(\\* )(.*)", "<ul><li>$3</li></ul>");
-            dummy = dummy.replace("</ul><ul>", "");
-            // bold and italic formatting in markdown
-            dummy = dummy.replaceAll("\\*\\*\\*(.*?)\\*\\*\\*", "<b><i>$1</i></b>");
-            dummy = dummy.replaceAll("___(.*?)___", "<b><i>$1</i></b>");
-            // bold formatting
-            dummy = dummy.replaceAll("__(.*?)__", "<b>$1</b>");
-            dummy = dummy.replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
-            // italic formatting
-            dummy = dummy.replaceAll("_(.*?)_", "<i>$1</i>");
-            dummy = dummy.replaceAll("\\*(.*?)\\*", "<i>$1</i>");
-            // headlines
-            dummy = dummy.replaceAll("(^|\\n)#{4} (.*)", head4md);
-            dummy = dummy.replaceAll("(^|\\n)#{3} (.*)", head3md);
-            dummy = dummy.replaceAll("(^|\\n)#{2} (.*)", head2md);
-            dummy = dummy.replaceAll("(^|\\n)#{1} (.*)", head1md);
-            // strike
-            dummy = dummy.replaceAll("---(.*?)---", "<strike>$1</strike>");
-            // images
-            // TODO Img tag nach oben, vor kursiv format, und _ im Dateinamen durch "´:`" o.ä. (bevor Matthias meckert, 100-Zeichenfolge!) ersetzen
-            dummy = dummy.replaceAll("[!]{1}\\[([^\\[]+)\\]\\(([^\\)]+)\\)", "[img]$2[/img]");
-            // we need to fix emphasing in image tags. if image file path has
-            // underscores, these have been replaced to italic / bold etc.
-            dummy = fixBrokenTags(dummy, "\\[img\\]([^|]*)(.*?)\\[/img\\]");
-            dummy = fixBrokenTags(dummy, "\\(http://([^\\)]+)\\)");
-            // replace line breaks
-            dummy = dummy.replace("\n", "[br]");*/
-
-        } else {
+        if (!isMarkdownActivated) {
             // if we don't have markdown, and thus no quotes-syntax with "> ...",
             // we need to replace non-tag-< and > here
             if (!isExport) {
@@ -1463,7 +1439,28 @@ public class HtmlUbbUtil {
             dummy = dummy.replace("[br]", "\n");
 
             MutableDataSet options = new MutableDataSet();
-            options.setFrom(ParserEmulationProfile.MULTI_MARKDOWN);
+            options.setFrom(ParserEmulationProfile.GITHUB_DOC);
+            options
+                    .set(Parser.REFERENCES_KEEP, KeepType.LAST)
+                    .set(HtmlRenderer.INDENT_SIZE, 2)
+                    .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
+                    .set(TablesExtension.COLUMN_SPANS, false)
+                    .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
+                    .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
+                    .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
+                    .set(Parser.EXTENSIONS, Arrays.asList(
+                            TablesExtension.create(),
+                            StrikethroughSubscriptExtension.create(),
+                            AttributesExtension.create(),
+                            EnumeratedReferenceExtension.create(),
+                            FootnoteExtension.create(),
+                            AbbreviationExtension.create(),
+                            TaskListExtension.create(),
+                            InsExtension.create(),
+                            YamlFrontMatterExtension.create()
+                            )
+                            )
+                    .toImmutable();
             Parser parser = Parser.builder(options).build();
             HtmlRenderer renderer = HtmlRenderer.builder(options).build();
             System.out.println(parser.parse(dummy));
@@ -1597,12 +1594,13 @@ public class HtmlUbbUtil {
         // first, init the index-variable
         int pos = 0;
         int end;
-        // go and find all table-tages
+        // go and find all table-tags
         while (pos != -1) {
             // find occurence of opening-tag
             pos = dummy.indexOf("[table]", pos);
             // when open-tag was found, go on and find end of table-tag
             if (pos != -1) {
+
                 // find closing-tag
                 end = dummy.indexOf("[/table]", pos);
                 // if closing-tag also found, convert content to table

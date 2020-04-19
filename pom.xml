@@ -321,6 +321,7 @@
             <version>0.61.12</version>
         </dependency>
 
+
         <dependency>
             <groupId>at.jta.winregistry</groupId>
             <artifactId>winregistry</artifactId>
