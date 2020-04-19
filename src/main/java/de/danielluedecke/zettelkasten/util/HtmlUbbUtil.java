@@ -44,13 +44,17 @@ import com.vladsch.flexmark.ext.media.tags.MediaTagsExtension;
 import com.vladsch.flexmark.ext.superscript.SuperscriptExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension;
+import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterVisitor;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.parser.ParserEmulationProfile;
 import com.vladsch.flexmark.util.ast.KeepType;
 import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import de.danielluedecke.zettelkasten.CInsertManualLink;
+import de.danielluedecke.zettelkasten.DesktopFrame;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
+import de.danielluedecke.zettelkasten.ZettelkastenView;
 import de.danielluedecke.zettelkasten.database.BibTex;
 import de.danielluedecke.zettelkasten.util.misc.Comparer;
 import de.danielluedecke.zettelkasten.database.Daten;
@@ -70,11 +74,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 
 import lombok.extern.log4j.Log4j2;
 import lombok.extern.slf4j.Slf4j;
+import org.jdesktop.application.Application;
+import org.jdesktop.application.ResourceMap;
 import org.jdom2.Element;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
+import org.kefirsf.bb.BBProcessorFactory;
+import org.kefirsf.bb.TextProcessor;
 
 /**
  * This class is responsible for the creation of a html page of an zettelkasten
@@ -1369,11 +1379,15 @@ public class HtmlUbbUtil {
                 dummy = dummy.replace(">", "&gt;").replace("<", "&lt;");
             }
         }
+
+        TextProcessor processor = BBProcessorFactory.getInstance().create();
+        dummy = processor.process(dummy);
+
         // inline-code blocks formatting
         dummy = dummy.replaceAll("\\`(.*?)\\`", "<code>$1</code>");
 
         // hyperlinks
-        dummy = dummy.replaceAll("\\[([^\\[]+)\\]\\(http([^\\)]+)\\)", "<a href=\"http$2\" title=\"http$2\">$1</a>");
+        dummy = dummy.replaceAll("(?<!!)\\[([^\\[]+)\\]\\(http([^\\)]+)\\)", "<a href=\"http$2\" title=\"http$2\">$1</a>");
         // bold formatting: [f] becomes <b>
         dummy = dummy.replaceAll("\\[f\\](.*?)\\[/f\\]", "<b>$1</b>");
         // italic formatting: [k] becomes <i>
@@ -1425,29 +1439,38 @@ public class HtmlUbbUtil {
         // dummy = dummy.replaceAll("\\[m ([^\\[]*)\\]([^\\[]*)\\[/m\\]", "<div style=\"margin-left:$1cm;margin-right:$1cm\">$2</div>");
         dummy = dummy.replaceAll("\\[m ([^\\[]*)\\](.*?)\\[/m\\]", "<div style=\"margin-left:$1cm;margin-right:$1cm\">$2</div>");
         // unordered list: [l] becomes <ul>
-        dummy = dummy.replaceAll("\\[l\\](.*?)\\[/l\\]", "<ul>$1</ul>");
+        //dummy = dummy.replaceAll("\\[l\\](.*?)\\[/l\\]", "<ul>$1</ul>");
         // ordered list: [n] becomes <ol>
-        dummy = dummy.replaceAll("\\[n\\](.*?)\\[/n\\]", "<ol>$1</ol>");
+        //dummy = dummy.replaceAll("\\[n\\](.*?)\\[/n\\]", "<ol>$1</ol>");
         // bullet points: [*] becomes <li>
-        dummy = dummy.replaceAll("\\[\\*\\](.*?)\\[/\\*\\]", "<li>$1</li>");
+       // dummy = dummy.replaceAll("\\[\\*\\](.*?)\\[/\\*\\]", "<li>$1</li>");
         // manual links
         dummy = dummy.replaceAll("\\[z ([^\\[]*)\\](.*?)\\[/z\\]", "<a class=\"manlink\" href=\"#z_$1\">$2</a>");
+
         // remove all new lines after headlines
         dummy = dummy.replaceAll("\\</h([^\\<]*)\\>\\<br\\>", "</h$1>");
 
+        dummy = dummy.replace("[br]", "\n");
+
         if (isMarkdownActivated) {
-            dummy = dummy.replace("[br]", "\n");
+            ResourceMap resourceMap = Application.getInstance(ZettelkastenApp.class).getContext().getResourceMap(ZettelkastenView.class);
+
+            dummy = dummy.replaceAll("\\[\\[([^\\[]*)\\]\\]", "<a class=\"manlink\" href=\"#z_$1\">" +
+                    resourceMap.getString("entryText")
+                    + " $1</a>");
 
             MutableDataSet options = new MutableDataSet();
-            options.setFrom(ParserEmulationProfile.GITHUB_DOC);
+            options.setFrom(ParserEmulationProfile.GITHUB);
             options
                     .set(Parser.REFERENCES_KEEP, KeepType.LAST)
                     .set(HtmlRenderer.INDENT_SIZE, 2)
                     .set(HtmlRenderer.PERCENT_ENCODE_URLS, true)
+                    .set(HtmlRenderer.SOFT_BREAK, "<br>")
                     .set(TablesExtension.COLUMN_SPANS, false)
                     .set(TablesExtension.APPEND_MISSING_COLUMNS, true)
                     .set(TablesExtension.DISCARD_EXTRA_COLUMNS, true)
                     .set(TablesExtension.HEADER_SEPARATOR_COLUMN_MATCH, true)
+                    .set(Parser.CODE_SOFT_LINE_BREAKS, true)
                     .set(Parser.EXTENSIONS, Arrays.asList(
                             TablesExtension.create(),
                             StrikethroughSubscriptExtension.create(),
@@ -1463,50 +1486,19 @@ public class HtmlUbbUtil {
                     .toImmutable();
             Parser parser = Parser.builder(options).build();
             HtmlRenderer renderer = HtmlRenderer.builder(options).build();
-            System.out.println(parser.parse(dummy));
-            dummy = renderer.render(parser.parse(dummy));
-            System.out.println(dummy);
-        } else {
-            dummy = dummy.replace("[br]", "<br/>");
-        }
-        return dummy;
-    }
 
-    private static String fixBrokenTags(String content, String regexpattern) {
-        try {
-            // we need to fix emphasing in image tags. if image file path has
-            // underscores, these have been replaced to italic / bold etc.
-            Pattern p = Pattern.compile(regexpattern);
-            // create matcher
-            Matcher m = p.matcher(content);
-            // save find-position
-            List<Integer> start = new ArrayList<>();
-            List<Integer> end = new ArrayList<>();
-            List<String> itag = new ArrayList<>();
-            // check for occurences
-            while (m.find()) {
-                // save grouping-positions
-                start.add(m.start());
-                end.add(m.end());
-                itag.add(m.group());
-            }
-            // have any image tags?
-            if (!start.isEmpty()) {
-                for (int i = start.size() - 1; i >= 0; i--) {
-                    // get image tag
-                    String imtag = itag.get(i).
-                            replaceAll(Pattern.quote("<b>"), "__").
-                            replaceAll(Pattern.quote("</b>"), "__").
-                            replaceAll(Pattern.quote("<i>"), "_").
-                            replaceAll(Pattern.quote("</i>"), "_");
-                    content = content.substring(0, start.get(i)) + 
-                            imtag +
-                            content.substring(end.get(i), content.length());
-                }
-            }
-        } catch (PatternSyntaxException e) {
+            dummy = renderer.render(parser.parse(dummy));
+
+            dummy = dummy.replace("href=\"#au:","href=\"#fn_");
+            dummy = dummy.replace("href=\"#fn:","href=\"#fn_");
+            dummy = dummy.replace("href=\"#cr:","href=\"#cr_");
+            dummy = dummy.replace("href=\"#z:","href=\"#z_");
+
         }
-        return content;
+
+        dummy = Jsoup.clean(dummy, Whitelist.relaxed());
+
+        return dummy;
     }
     
     
@@ -1609,7 +1601,8 @@ public class HtmlUbbUtil {
                     // get table-content
                     String tablecontent = dummy.substring(pos + 7, end);
                     // get table rows
-                    String[] tablerows = tablecontent.split(Pattern.quote("<br>"));
+                    //String[] tablerows = tablecontent.split(Pattern.quote("<br>"));
+                    String[] tablerows = tablecontent.split(Pattern.quote("\n"));
                     // init rowcounter
                     int rowcnt = 0;
                     // iterate all table rows

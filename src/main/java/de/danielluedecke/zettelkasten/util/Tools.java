@@ -35,15 +35,20 @@ package de.danielluedecke.zettelkasten.util;
 import de.danielluedecke.zettelkasten.ToolbarIcons;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
 import de.danielluedecke.zettelkasten.ZettelkastenView;
-import de.danielluedecke.zettelkasten.database.BibTex;
-import de.danielluedecke.zettelkasten.database.Daten;
-import de.danielluedecke.zettelkasten.database.DesktopData;
-import de.danielluedecke.zettelkasten.database.Settings;
-import de.danielluedecke.zettelkasten.database.Synonyms;
-import java.awt.Desktop;
-import java.awt.Frame;
-import java.awt.HeadlessException;
-import java.awt.Toolkit;
+import de.danielluedecke.zettelkasten.database.*;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
+
+import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.parser.ParserDelegator;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.KeyEvent;
@@ -55,30 +60,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import javax.swing.AbstractAction;
-import javax.swing.AbstractButton;
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.parser.ParserDelegator;
-import org.jdom2.Element;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
 
 /**
- *
  * @author danielludecke
  */
 public class Tools {
@@ -129,7 +119,7 @@ public class Tools {
      * or \t).
      *
      * @param text the text that contains UBB-tags like {@code [br]} or
-     * {@code &#9;}
+     *             {@code &#9;}
      * @return a string with converted UTF-chars (line separators, tabs) used in
      * a regular text field
      */
@@ -174,7 +164,6 @@ public class Tools {
     }
 
     /**
-     *
      * @param linktype
      * @param data
      * @param displayedZettel
@@ -206,29 +195,79 @@ public class Tools {
     }
 
     /**
+     * Scrolls to an a or p element with a given id or name
+     * @param pane the jeditorpane
+     * @param reference the id or name to search for
+     */
+    public static void scrollToReference(JEditorPane pane, String reference) {
+        Document d = pane.getDocument();
+        if (d instanceof HTMLDocument) {
+            HTMLDocument doc = (HTMLDocument) d;
+            HTMLDocument.Iterator iter = doc.getIterator(HTML.Tag.A);
+
+            int pos = -1;
+
+            for (; iter.isValid(); iter.next()) {
+                AttributeSet a = iter.getAttributes();
+                String nm = (String) a.getAttribute(HTML.Attribute.NAME);
+                Constants.zknlogger.info(a + "");
+
+                if ((nm != null) && nm.equals(reference)) {
+                    // found a matching reference in the document.
+                    Constants.zknlogger.info("Found a matching reference in the document");
+                    pos = iter.getStartOffset();
+                    break;
+                }
+            }
+
+            if (pos == -1) pos = doc.getElement(reference).getStartOffset();
+            if (pos != -1) {
+                Rectangle r;
+                try {
+                    r = pane.modelToView(pos);
+                    if (r != null) {
+                        // the view is visible, scroll it to the
+                        // center of the current visible area.
+                        Rectangle vis = pane.getVisibleRect();
+                        //r.y -= (vis.height / 2);
+                        r.height = vis.height;
+                        pane.scrollRectToVisible(r);
+                        pane.setCaretPosition(pos);
+                    }
+                } catch (BadLocationException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+
+    }
+
+    /**
      * This method opens a file or URL either from within a clicked link inside
      * the jEditorPane (see
      * {@link #eventHyperlinkActivated(javax.swing.event.HyperlinkEvent) eventHyperlinkActivated(javax.swing.event.HyperlinkEvent)}
      * or from the attachment-list (see
      * {@link #openAttachment() openAttachment()}.
-     *
+     * <p>
      * This method is called from the ZettelkastenView.class, the CDesktop.class
      * and the CSearchResults.class.
      *
-     * @param linktype a String value containing the URL of the clicked
-     * hyperlink
-     * @param frame the frame which was the source from the editor pane that
-     * contained the hyperlink
-     * @param sourceframe a reference to the frame from where this function call
-     * came. needed for the html-formatting, since entries are differently
-     * formatted in the search window.
-     * @param data a reference to the CDaten class
+     * @param linktype        a String value containing the URL of the clicked
+     *                        hyperlink
+     * @param frame           the frame which was the source from the editor pane that
+     *                        contained the hyperlink
+     * @param sourceframe     a reference to the frame from where this function call
+     *                        came. needed for the html-formatting, since entries are differently
+     *                        formatted in the search window.
+     * @param data            a reference to the CDaten class
      * @param bibtexObj
-     * @param settings a reference to the CSettings class
-     * @param mainpane a reference to the JEditorPane that was the source of the
-     * hyperlink-event
+     * @param settings        a reference to the CSettings class
+     * @param mainpane        a reference to the JEditorPane that was the source of the
+     *                        hyperlink-event
      * @param displayedZettel the currently displayed entry. does not apply to
-     * the CDesktop.class
+     *                        the CDesktop.class
      * @return <ul>
      * <li>in case a literatur footnote was clicked, the related author-value is
      * returned as string value.</li>>
@@ -242,8 +281,8 @@ public class Tools {
         //
         // here we have a reference (ankh) to the attachments, which are located at the
         // end of an entry
-        if (linktype.equals("#hyperjump")) {
-            mainpane.scrollToReference("hyperjump");
+        if (linktype.equals("#hyperjump") || linktype.matches("#.+:.+")) {
+            scrollToReference(mainpane, linktype.substring(1));//"hyperjump");
         } else if (linktype.equals("#activatedEntry")) {
             return linktype;
         } // here we have a literature footnote. if this link is activated, we want
@@ -255,10 +294,16 @@ public class Tools {
                 // check sourceframe
                 if (sourceframe != Constants.FRAME_DESKTOP) {
                     // get and convert number
-                    int aunr = Integer.parseInt(linktype.substring(4));
-                    // get author from author-xml-file
-                    au = data.getAuthor(aunr);
-                    // create a new instance of the CHtml-class for highlighting
+                    String id = linktype.substring(4);
+                    try {
+                        int aunr = Integer.parseInt(linktype.substring(4));
+                        // get author from author-xml-file
+                        au = data.getAuthor(aunr);
+                        // create a new instance of the CHtml-class for highlighting
+                    } catch(NumberFormatException e) {
+                        au = data.getAuthor(data.getAuthorBibKeyPosition(id));
+                    }
+
                     HtmlUbbUtil.setHighlighTerms(new String[]{Pattern.quote(au)}, HtmlUbbUtil.HIGHLIGHT_STYLE_LIVESEARCH, false);
                     // get the authors with new highlighted author that was selected from the footnote
                     String text = HtmlUbbUtil.getEntryAsHTML(settings, data, bibtexObj, displayedZettel, null, sourceframe);
@@ -321,14 +366,13 @@ public class Tools {
         // movplay.showPlayer();
         // }
         // here comes the part which depends on the desktop-api
-        else {
+        else if (!linktype.startsWith("#")) {
             launchFile(linktype, frame, data, settings);
         }
         return null;
     }
 
     /**
-     *
      * @param linktype
      * @param frame
      * @param data
@@ -469,10 +513,10 @@ public class Tools {
      * returns {@code true} if the content could be parsed t HTML. With this, we
      * check whether an entry makes use of correct or irregular nested tags.
      *
-     * @param content the html-page which should be checked for correctly nested
-     * tags, usually an entry's content
+     * @param content      the html-page which should be checked for correctly nested
+     *                     tags, usually an entry's content
      * @param zettelnummer the number of the entry that is checked for valid
-     * html-tags
+     *                     html-tags
      * @return {@code true} when the content could be successfully parsed to
      * HTML, false otherwise
      */
@@ -526,7 +570,7 @@ public class Tools {
      * timestamp of entries is provided as "yymmddhhmm", e.g. "0811051810"
      * stands for "5th November 2008, 10:18 am"
      *
-     * @param d the timestamp in original format
+     * @param d         the timestamp in original format
      * @param shortdate
      * @return the timestamp in a "readable" format
      */
@@ -534,18 +578,18 @@ public class Tools {
         // create an array with month names. we do this, because now we can
         // just edit the property-file for other languages/locales of the month-names
         String[] months = {
-            resourceMap.getString("monthJan"),
-            resourceMap.getString("monthFeb"),
-            resourceMap.getString("monthMar"),
-            resourceMap.getString("monthApr"),
-            resourceMap.getString("monthMay"),
-            resourceMap.getString("monthJun"),
-            resourceMap.getString("monthJul"),
-            resourceMap.getString("monthAug"),
-            resourceMap.getString("monthSep"),
-            resourceMap.getString("monthOct"),
-            resourceMap.getString("monthNov"),
-            resourceMap.getString("monthDec"),};
+                resourceMap.getString("monthJan"),
+                resourceMap.getString("monthFeb"),
+                resourceMap.getString("monthMar"),
+                resourceMap.getString("monthApr"),
+                resourceMap.getString("monthMay"),
+                resourceMap.getString("monthJun"),
+                resourceMap.getString("monthJul"),
+                resourceMap.getString("monthAug"),
+                resourceMap.getString("monthSep"),
+                resourceMap.getString("monthOct"),
+                resourceMap.getString("monthNov"),
+                resourceMap.getString("monthDec"),};
         // prepare the return-value
         StringBuilder retval = new StringBuilder("");
         // first, set the day. the day starts at position 4 within the string, always two digits
@@ -649,8 +693,8 @@ public class Tools {
      * return an integer-array containing the values 3,5,7,8,9.
      *
      * @param input the user-input from a textfield, given as string
-     * @param len the length of the dataset, so we don't have any entry-numbers
-     * out of bounds
+     * @param len   the length of the dataset, so we don't have any entry-numbers
+     *              out of bounds
      * @return an integer-array with the converted entry-numbers from the user
      * input, or null if an error occured or the input contained invalid
      * numbers.
@@ -738,8 +782,8 @@ public class Tools {
      * {@code 3   This is the third entry}<br> {@code 6   This is number six}<br>
      * {@code 9   My last entry}
      *
-     * @param str the string that was dropped or pasted, i.e. received by the
-     * transfer handler
+     * @param str      the string that was dropped or pasted, i.e. received by the
+     *                 transfer handler
      * @param maxcount
      * @return an integer-array with all entry-numbers that could be extracted,
      * or {@code null} if the string did not contain any entrynumbers.
@@ -790,9 +834,9 @@ public class Tools {
      * in the linked list {@code addedEntries} and puts them together to a
      * linked list of type {@code Object []}.
      *
-     * @param desktopObj the reference to the CDesktopData-class
+     * @param desktopObj   the reference to the CDesktopData-class
      * @param addedEntries a linked list of integer values, containing all
-     * entry-numbers that should be looked after for multiple occurences
+     *                     entry-numbers that should be looked after for multiple occurences
      * @return a linked list of {@code Object []}, where each object-array has
      * the 2 fields: {@code Object[0]} containing the desktop-name as string,
      * and {@code Object[1]} a linked list of type {@code Element} that contains
@@ -863,9 +907,9 @@ public class Tools {
      * returned as string.
      *
      * @param list a linked list which contains the multiple-entry-data. see
-     * {@link #retrieveDoubleEntries(zettelkasten.CDesktopData, java.util.LinkedList) retrieveDoubleEntries(zettelkasten.CDesktopData, java.util.LinkedList)}
-     * for more details on how this parameter is created. use the return result
-     * of this method as this parameter
+     *             {@link #retrieveDoubleEntries(zettelkasten.CDesktopData, java.util.LinkedList) retrieveDoubleEntries(zettelkasten.CDesktopData, java.util.LinkedList)}
+     *             for more details on how this parameter is created. use the return result
+     *             of this method as this parameter
      * @return a string with the message which entries are at which position in
      * the desktop-data, or {@code null} if no occurences appear.
      */
@@ -958,9 +1002,9 @@ public class Tools {
      * index-word of a synonym-line).
      *
      * @param synonymsObj a reference to the synonyms-data-class
-     * {@code CSynonyms}
-     * @param keywords an array of keywords that should be checked, whether one
-     * or more elements of this array are synonyms, but no index-word
+     *                    {@code CSynonyms}
+     * @param keywords    an array of keywords that should be checked, whether one
+     *                    or more elements of this array are synonyms, but no index-word
      * @return if the user agrees, a "cleaned" array containing only keywords
      * which appear as index-words of synonyms only, or the original array which
      * was passed as parameter if the user does not agree to do the replacement.
@@ -1045,10 +1089,10 @@ public class Tools {
      * "one" etc. The remaining parts of the keyword(s) are copied to a string
      * array and returned.
      *
-     * @param keywords a string-array with keywords that should be separated
+     * @param keywords  a string-array with keywords that should be separated
      * @param matchcase {@code true} if the case should not be changed,
-     * {@code false} if case should be ignored and keyword-parts should be
-     * transformed to lower case.
+     *                  {@code false} if case should be ignored and keyword-parts should be
+     *                  transformed to lower case.
      * @return a string array that contains the separated parts of the keywords,
      * or null if no keyword-parts have been found...
      */
@@ -1114,10 +1158,10 @@ public class Tools {
      *
      * @param settingsObj A reference to the CSettings-class
      * @param synonymsObj A reference to the CSynonyms-class
-     * @param keyword the keyword, which should be split into its parts
-     * @param matchcase {@code true} if the case should not be changed,
-     * {@code false} if case should be ignored and keyword-parts should be
-     * transformed to lower case.
+     * @param keyword     the keyword, which should be split into its parts
+     * @param matchcase   {@code true} if the case should not be changed,
+     *                    {@code false} if case should be ignored and keyword-parts should be
+     *                    transformed to lower case.
      * @return a string-array containing all splitted parts of the keywords, and
      * spit-parts of the keyword- related synonyms, if the keyword has any
      * related synonyms.
@@ -1164,7 +1208,7 @@ public class Tools {
      * regular-expression meta-characters, that usually have to be escaped.
      *
      * @param expression the string that should be checked for occurences of
-     * reg-ex-meta-characters
+     *                   reg-ex-meta-characters
      * @return {@code true} if {@code expression} contains reg-ex-meta-chars,
      * {@code false} otherwise
      */
@@ -1189,7 +1233,7 @@ public class Tools {
      * "UBB"-format tags.
      *
      * @param dummy the entry content as string where Markdown should be
-     * converted to the common format tags
+     *              converted to the common format tags
      * @return a string with "UBB"-format tags and no more Markdown syntax.
      * Markdown has been replaced with the common format tags of the
      * Zettelkasten.
@@ -1304,12 +1348,12 @@ public class Tools {
      * "cleaned" string of that entry's content that does no longer contain any
      * UBB-Format-tags.
      *
-     * @param content the entry's content that should be cleaned from
-     * UBB-format-tags
+     * @param content         the entry's content that should be cleaned from
+     *                        UBB-format-tags
      * @param includeMarkdown if {@code true}, Markdown syntax will also be
-     * removed. If {@code false}, Markdown syntax will remain in the string.
-     * This is needed when exporting content into Markdown format and only not
-     * supported UBB tags should be removed, but not Markdown.
+     *                        removed. If {@code false}, Markdown syntax will remain in the string.
+     *                        This is needed when exporting content into Markdown format and only not
+     *                        supported UBB tags should be removed, but not Markdown.
      * @return a cleaned string of that entry's content that does no longer
      * contain any UBB-Format-tags
      */
@@ -1437,10 +1481,10 @@ public class Tools {
     /**
      * This method copies selected text in plain format into the clipboard.
      *
-     * @param dataObj a reference to the CDaten class. Needed to retrieve the
-     * enty's content
+     * @param dataObj         a reference to the CDaten class. Needed to retrieve the
+     *                        enty's content
      * @param displayedZettel the currently displayed entry
-     * @param editorPane the editor pane which is the copy source
+     * @param editorPane      the editor pane which is the copy source
      */
     public static void copyPlain(Daten dataObj, int displayedZettel, javax.swing.JEditorPane editorPane) {
         // create string builder that will contain complete plain entry
@@ -1534,8 +1578,8 @@ public class Tools {
      * If the line wrapped text should have a prefix at the beginning of each
      * line, this can be passed as parameter {@code prefix}.
      *
-     * @param s the single-lined string
-     * @param len the length of each line from the returned string
+     * @param s      the single-lined string
+     * @param len    the length of each line from the returned string
      * @param prefix an optional string that is inserted infront of each line.
      * @return the string {@code s} with separated lines, with a line wrap after
      * max. {@code len} chars.
@@ -1581,7 +1625,7 @@ public class Tools {
      * the correct os-separator-char. This is needed, when the user uses the
      * program and data files both on windows or linux, for instance.
      *
-     * @param csc the path to the attachment or image, as string.
+     * @param csc      the path to the attachment or image, as string.
      * @param settings a reference to the {@code CSettings} class.
      * @return the string {@code csc} with converted seperator chars, so the
      * string is usable for the current OS.
@@ -1687,8 +1731,8 @@ public class Tools {
      * non-legal-JDOM-char is replaced by a space-char.
      *
      * @param content the content-string that should be checked for valid
-     * JDOM-chars. typically use the input from a user made in the
-     * CNewEntry-dialog.
+     *                JDOM-chars. typically use the input from a user made in the
+     *                CNewEntry-dialog.
      * @return a "cleaned" string without any illegal JDOM-chars. Illegal chars
      * are replaced by space-chars
      */
@@ -1807,7 +1851,7 @@ public class Tools {
      * This method is used when displaying an entry in the main window, to
      * show all authors of an entry, including those authors which appear
      * in footnotes, but are not assigned as author value.
-     * 
+     *
      * @param content the HTML-formatted content of an entry.
      * @return all author IDs inside footnotes
      */
@@ -1854,13 +1898,13 @@ public class Tools {
         button.setPreferredSize(Constants.seaGlassButtonDimension);
         return button;
     }
-    
+
     /**
      * This method extracts all footnote IDs from an entry.
      *
      * @param dataObj
      * @param content the entry's content, so the footnote-tags can be extracted
-     * and possible bibkey-values retrieved.
+     *                and possible bibkey-values retrieved.
      * @return all footnote IDs from an entry as linked integer list.
      */
     public static LinkedList<Integer> getFootnoteIDs(Daten dataObj, String content) {
@@ -1904,23 +1948,22 @@ public class Tools {
         // author value contains a bibkey.
         return footnoteid;
     }
-    
+
     /**
      * Performant case-insensitive string search. Based on an example from StackOverflow.
-     * 
-     * @see http://stackoverflow.com/a/25379180
-     * 
-     * @param text the source text
+     *
+     * @param text    the source text
      * @param pattern the find pattern
      * @return {@code true} if {@code pattern} was found in {@code text}, {@code false}
      * otherwise. Matching ignores case.
+     * @see http://stackoverflow.com/a/25379180
      */
     public static boolean containsIgnoreCase(String text, String pattern) {
         // get string length
         final int length = pattern.length();
         if (length == 0) {
             // Empty string is contained
-            return true; 
+            return true;
         }
         // get lower and upper case char
         final char firstLo = Character.toLowerCase(pattern.charAt(0));

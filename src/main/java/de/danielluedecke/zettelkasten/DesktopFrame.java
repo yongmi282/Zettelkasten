@@ -543,7 +543,7 @@ public class DesktopFrame extends javax.swing.JFrame implements WindowListener {
                     // call method that handles the hyperlink-click
                     String returnValue = Tools.openHyperlink(linktype, mainframe, Constants.FRAME_DESKTOP, dataObj, bibtexObj, settingsObj, jEditorPaneMain, -1);
                     // check whether we have a return value. this might be the case either when the user clicked on
-                    // a footenote, or on the rating-stars
+                    // a footnote, or on the rating-stars
                     if (returnValue != null && returnValue.startsWith("#z_")) {
                         // show entry
                         zknframe.showEntry(dataObj.getCurrentZettelPos());
