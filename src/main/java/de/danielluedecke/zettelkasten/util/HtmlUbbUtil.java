@@ -1216,9 +1216,7 @@ public class HtmlUbbUtil {
                     try {
                         String path = dummy.substring(pos + 5, pos2);
                         Constants.zknlogger.info("Path: " + path);
-                        if (path.startsWith("http")) {
-                            pos = pos2;
-                        } else {
+                        if (!path.startsWith("http")) {
                             File imgfile = new File(path.substring(0, path.indexOf("|")));
                             if (!imgfile.exists()) {
                                 // image tag: [img]img/gfx.png[/img] becomes <img src="/img/gfx.png">
@@ -1438,11 +1436,11 @@ public class HtmlUbbUtil {
         // dummy = dummy.replaceAll("\\[m ([^\\[]*)\\]([^\\[]*)\\[/m\\]", "<div style=\"margin-left:$1cm;margin-right:$1cm\">$2</div>");
         dummy = dummy.replaceAll("\\[m ([^\\[]*)\\](.*?)\\[/m\\]", "<div style=\"margin-left:$1cm;margin-right:$1cm\">$2</div>");
         // unordered list: [l] becomes <ul>
-        //dummy = dummy.replaceAll("\\[l\\](.*?)\\[/l\\]", "<ul>$1</ul>");
+        dummy = dummy.replaceAll("\\[l\\](.*?)\\[/l\\]", "<ul>$1</ul>");
         // ordered list: [n] becomes <ol>
-        //dummy = dummy.replaceAll("\\[n\\](.*?)\\[/n\\]", "<ol>$1</ol>");
+        dummy = dummy.replaceAll("\\[n\\](.*?)\\[/n\\]", "<ol>$1</ol>");
         // bullet points: [*] becomes <li>
-       // dummy = dummy.replaceAll("\\[\\*\\](.*?)\\[/\\*\\]", "<li>$1</li>");
+        dummy = dummy.replaceAll("\\[\\*\\](.*?)\\[/\\*\\]", "<li>$1</li>");
         // manual links
         dummy = dummy.replaceAll("\\[z ([^\\[]*)\\](.*?)\\[/z\\]", "<a class=\"manlink\" href=\"#z_$1\">$2</a>");
 
