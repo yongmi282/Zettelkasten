@@ -34,10 +34,12 @@ package de.danielluedecke.zettelkasten.util;
 
 import com.vladsch.flexmark.ext.abbreviation.AbbreviationExtension;
 import com.vladsch.flexmark.ext.attributes.AttributesExtension;
+import com.vladsch.flexmark.ext.definition.DefinitionExtension;
 import com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtension;
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
+import com.vladsch.flexmark.ext.gitlab.GitLabExtension;
 import com.vladsch.flexmark.ext.ins.InsExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension;
@@ -918,7 +920,7 @@ public class HtmlUbbUtil {
 
         String dummy = replaceUbbToHtml(c, settings.getMarkdownActivated(), (Constants.FRAME_DESKTOP == sourceframe), isExport);
         // add title attributes to manual links
-        Constants.zknlogger.info("Content: " + dummy);
+
 
         int pos = 0;
         while (pos != -1) {
@@ -1219,7 +1221,6 @@ public class HtmlUbbUtil {
                 if (pos2 != -1) {
                     try {
                         String path = dummy.substring(pos + 5, pos2);
-                        Constants.zknlogger.info("Path: " + path);
                         if (!path.startsWith("http")) {
                             File imgfile = new File(path.substring(0, path.indexOf("|")));
                             if (!imgfile.exists()) {
@@ -1371,6 +1372,8 @@ public class HtmlUbbUtil {
             head3md = "$1<h4>$2</h4>";
             head4md = "$1<h5>$2</h5>";
         }
+
+
         // check whether markdown is activated
         // if yes, replace markdown here
         if (!isMarkdownActivated) {
@@ -1381,7 +1384,7 @@ public class HtmlUbbUtil {
             }
         }
 
-        Constants.zknlogger.info("Hier: " + dummy);
+        dummy = dummy.replace("&#9;", "\t");
 
         //Since the table notation is apparently not standard-compliant,
         // we have to bypass the BBProcessor.
@@ -1389,7 +1392,7 @@ public class HtmlUbbUtil {
         TextProcessor processor = BBProcessorFactory.getInstance().create();
         dummy = processor.process(dummy);
         dummy = dummy.replace("table-bp]","table]");
-
+        Constants.zknlogger.info("Content: " + dummy);
         // inline-code blocks formatting
         dummy = dummy.replaceAll("\\`(.*?)\\`", "<code>$1</code>");
 
@@ -1461,15 +1464,18 @@ public class HtmlUbbUtil {
         dummy = dummy.replaceAll("[!]{1}\\[([^\\[]+)\\]\\(([^\\)]+)\\)", "[img]$2[/img]");
 
 
-        dummy = dummy.replace("[br]", "\n");
-
 
         if (isMarkdownActivated) {
+            dummy = dummy.replace("[br]", "\n");
+
             ResourceMap resourceMap = Application.getInstance(ZettelkastenApp.class).getContext().getResourceMap(ZettelkastenView.class);
 
             dummy = dummy.replaceAll("\\[\\[([^\\[]*)\\]\\]", "<a class=\"manlink\" href=\"#z_$1\">" +
                     resourceMap.getString("entryText")
                     + " $1</a>");
+
+            //tab stops do not exist in markdown, best possible way to emulate this is via def lists.
+            dummy = dummy.replaceAll("\t+",": ");
 
             MutableDataSet options = new MutableDataSet();
             options.setFrom(ParserEmulationProfile.GITHUB);
@@ -1494,7 +1500,8 @@ public class HtmlUbbUtil {
                             AbbreviationExtension.create(),
                             TaskListExtension.create(),
                             InsExtension.create(),
-                            YamlFrontMatterExtension.create()
+                            YamlFrontMatterExtension.create(),
+                            DefinitionExtension.create()
                             )
                             )
                     .toImmutable();
@@ -1512,6 +1519,9 @@ public class HtmlUbbUtil {
             dummy = dummy.replaceAll("---(.*?)---", "<strike>$1</strike>");
             // images
 
+        } else {
+            dummy = dummy.replace("[br]", "<br>");
+            dummy = dummy.replace("\t", "nbsp;");
         }
 
 
@@ -1646,7 +1656,6 @@ public class HtmlUbbUtil {
             pos = dummy.indexOf("[table]", pos);
             // when open-tag was found, go on and find end of table-tag
             if (pos != -1) {
-                Constants.zknlogger.info("table found");
 
                 // find closing-tag
                 end = dummy.indexOf("[/table]", pos);
@@ -1657,7 +1666,6 @@ public class HtmlUbbUtil {
                     String tablecontent = dummy.substring(pos + 7, end);
                     // get table rows
                     String[] tablerows = tablecontent.split(Pattern.quote("<br>"));
-                    Constants.zknlogger.info("Tablerows: " + tablerows);
                     // init rowcounter
                     int rowcnt = 0;
                     // iterate all table rows

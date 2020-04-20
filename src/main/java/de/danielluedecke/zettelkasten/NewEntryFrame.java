@@ -3822,7 +3822,7 @@ public class NewEntryFrame extends javax.swing.JFrame implements WindowListener,
         // them into <br>'s because the entry is displayed as html-content. simple
         // new lines without "<br>" command would not be shown as new lines
         //
-        // but first, we habe to remove all carriage-returns (\r), which are part of the
+        // but first, we have to remove all carriage-returns (\r), which are part of the
         // line-seperator in windows. somehow, the replace-command does *not* work, when
         // we replace "System.lineSeparator()" with "[br]", but only when
         // a "\n" is replaced by [br]. So, in case the system's line-separator also contains a
@@ -3830,7 +3830,7 @@ public class NewEntryFrame extends javax.swing.JFrame implements WindowListener,
         content = Tools.replaceUnicodeToUbb(content);
         // now we have to "clean" the lists. since each bullet point starts for optical reasons
         // in a new line, but in HTML-conversion this would mean additional <br>-tags within and
-        // unorder list (<ul> and <li>), we remove all [br]-tags between the list tags.
+        // unordered list (<ul> and <li>), we remove all [br]-tags between the list tags.
         content = content.replace(Constants.FORMAT_NUMBEREDLIST_OPEN + Constants.FORMAT_NEWLINE, Constants.FORMAT_NUMBEREDLIST_OPEN);
         content = content.replace(Constants.FORMAT_NUMBEREDLIST_CLOSE + Constants.FORMAT_NEWLINE, Constants.FORMAT_NUMBEREDLIST_CLOSE);
         content = content.replace(Constants.FORMAT_LIST_OPEN + Constants.FORMAT_NEWLINE, Constants.FORMAT_LIST_OPEN);
