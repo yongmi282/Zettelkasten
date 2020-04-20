@@ -1385,14 +1385,17 @@ public class HtmlUbbUtil {
         }
 
         dummy = dummy.replace("&#9;", "\t");
-
         //Since the table notation is apparently not standard-compliant,
         // we have to bypass the BBProcessor.
         dummy = dummy.replace("table]","table-bp]");
         TextProcessor processor = BBProcessorFactory.getInstance().create();
         dummy = processor.process(dummy);
         dummy = dummy.replace("table-bp]","table]");
-        Constants.zknlogger.info("Content: " + dummy);
+        //modern browsers apparently don't render &#9; anymore, thus this is likely to fail in
+        //the future. Also this is not supported by markdown. In order to provide a similar experience, replace
+        //the tabstop with 8 spaces
+        dummy = dummy.replace("\t", new String(new char[8]).replace("\0", "&nbsp;"));
+
         // inline-code blocks formatting
         dummy = dummy.replaceAll("\\`(.*?)\\`", "<code>$1</code>");
 
@@ -1474,8 +1477,6 @@ public class HtmlUbbUtil {
                     resourceMap.getString("entryText")
                     + " $1</a>");
 
-            //tab stops do not exist in markdown, best possible way to emulate this is via def lists.
-            dummy = dummy.replaceAll("\t+",": ");
 
             MutableDataSet options = new MutableDataSet();
             options.setFrom(ParserEmulationProfile.GITHUB);
@@ -1521,7 +1522,10 @@ public class HtmlUbbUtil {
 
         } else {
             dummy = dummy.replace("[br]", "<br>");
-            dummy = dummy.replace("\t", "nbsp;");
+
+            Constants.zknlogger.info("Content: " + dummy);
+
+
         }
 
 
