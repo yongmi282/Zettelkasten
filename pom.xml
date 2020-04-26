@@ -142,7 +142,15 @@
                     </gitFlowConfig>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.0.0</version>
+                <configuration>
+                    <licensesOutputFile>src/main/resources/licenses.xml</licensesOutputFile>
+                    <licensesOutputDirectory>target/licenses</licensesOutputDirectory>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>de.perdian.maven.plugins</groupId>
                 <artifactId>macosappbundler-maven-plugin</artifactId>
