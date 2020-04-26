@@ -1233,7 +1233,8 @@ public class HtmlUbbUtil {
                                 dummy = dummy.substring(0, pos) + "[img]file://" + sep + dummy.substring(pos + 5);
                             }
                         }
-                    } catch (IndexOutOfBoundsException ex) {
+                    } catch (NullPointerException | SecurityException | IndexOutOfBoundsException ex) {
+                        Constants.zknlogger.log(Level.WARNING, "Could not parse file path", ex);
                     }
                 }
                 // and change pos-counter
@@ -1270,7 +1271,7 @@ public class HtmlUbbUtil {
             // addvalue, indicating where to extract the filename of the image. since the windows-os
             // has an additional "/", this value is different in windows and other systems...
             int addvalue = (IS_WINDOWS) ? 18 : 17;
-            // find occurences of mage tags
+            // find occurences of image tags
             while (pos != -1) {
                 pos = dummy.indexOf("<img src=", pos);
                 // if we found an image, go on
@@ -1289,7 +1290,7 @@ public class HtmlUbbUtil {
                                 // get the image's size (width/height)
                                 width = image.getWidth(null);
                                 height = image.getHeight(null);
-                                // check whether we have predifined resize values...
+                                // check whether we have predefined resize values...
                                 if (resizevalues.size() > 0) {
                                     rw = rh = resizevalues.get(valcnt);
                                     valcnt++;
@@ -1299,8 +1300,8 @@ public class HtmlUbbUtil {
                                     rw = settings.getImageResizeWidth();
                                     rh = settings.getImageResizeHeight();
                                 }
-                                // if the image is larger than the preffered thumbnail-size, resize
-                                // width and heigh (proportionally)
+                                // if the image is larger than the preferred thumbnail-size, resize
+                                // width and height (proportionally)
                                 if (width > rw) {
                                     float faktor = (float) width / rw;
                                     width = (int) (width / faktor);
@@ -1332,7 +1333,7 @@ public class HtmlUbbUtil {
                                 }
                                 // replace old img-tag with new one
                                 // we have to do this between-step because we need to know where
-                                // the search has to coninute (pos).
+                                // the search has to continue (pos).
                                 String newdummy = dummy.substring(0, pos) + resize.toString();
                                 // set search-position indicator
                                 pos = newdummy.length();
