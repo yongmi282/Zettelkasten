@@ -720,7 +720,7 @@ public class HtmlUbbUtil {
 
             // replaces all urls that are not preceded by href or src (negative lookbehind)
             String groupEndOfURL = "[^ \"\\[\\]\\|\\t\\n\\r<]";
-            dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")(http://|https://)(" + groupEndOfURL + "*)", "<a href=\"$1$2\">$1$2</a>");
+            dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")(http://|https://|file://)(" + groupEndOfURL + "*)", "<a href=\"$1$2\">$1$2</a>");
             dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")([^://])(www\\." + groupEndOfURL + "*)", "$1<a href=\"http://$2\">$2</a>");
             dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")(mailto:)(" + groupEndOfURL + "*)", "<a href=\"mailto:$2\">$2</a>");
         return dummy;

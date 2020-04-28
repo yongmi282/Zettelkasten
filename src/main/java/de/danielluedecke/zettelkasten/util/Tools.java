@@ -35,19 +35,12 @@ package de.danielluedecke.zettelkasten.util;
 import de.danielluedecke.zettelkasten.ToolbarIcons;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
 import de.danielluedecke.zettelkasten.ZettelkastenView;
-import de.danielluedecke.zettelkasten.database.*;
-import org.jdom2.Element;
-import org.jdom2.output.Format;
-import org.jdom2.output.XMLOutputter;
+import de.danielluedecke.zettelkasten.database.BibTex;
+import de.danielluedecke.zettelkasten.database.Daten;
+import de.danielluedecke.zettelkasten.database.DesktopData;
+import de.danielluedecke.zettelkasten.database.Settings;
+import de.danielluedecke.zettelkasten.database.Synonyms;
 
-import javax.swing.*;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLDocument;
-import javax.swing.text.html.HTMLEditorKit;
-import javax.swing.text.html.parser.ParserDelegator;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -60,15 +53,35 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.*;
+import java.util.StringTokenizer;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javax.swing.AbstractAction;
+import javax.swing.AbstractButton;
+import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.parser.ParserDelegator;
+import org.jdom2.Element;
+import org.jdom2.output.Format;
+import org.jdom2.output.XMLOutputter;
 
 /**
+ *
  * @author danielludecke
  */
 public class Tools {
@@ -250,7 +263,7 @@ public class Tools {
      * {@link #eventHyperlinkActivated(javax.swing.event.HyperlinkEvent) eventHyperlinkActivated(javax.swing.event.HyperlinkEvent)}
      * or from the attachment-list (see
      * {@link #openAttachment() openAttachment()}.
-     * <p>
+     *
      * This method is called from the ZettelkastenView.class, the CDesktop.class
      * and the CSearchResults.class.
      *
@@ -433,8 +446,14 @@ public class Tools {
             linktype = linktype.replace("file://","");
             //html cleaning replaces //\ to / on windows
             linktype = linktype.replace("file:/","");
+            linktype = linktype.replace("%20"," ");
             // create file from the link
-            linkfile = FileOperationsUtil.getLinkFile(settings, data, linktype);
+            if (!linktype.startsWith("/") && !linktype.matches("([a-zA-Z]):\\\\.*")
+                    && !linktype.matches("([a-zA-Z]):/.*")) {
+                linkfile = FileOperationsUtil.getLinkFile(settings, data, linktype);
+            } else{
+                linkfile = new File(linktype);
+            }
             // create path for linux with "file://" at beginning of string
             linuxpath = linkfile;
             // check whether path contains space chars
@@ -461,8 +480,10 @@ public class Tools {
                         if (!desk.isSupported(Desktop.Action.OPEN) || PlatformUtil.isWindows()) {
                             // check whether we have windows os. if yes, use runtime exec instead of desktop
                             if (PlatformUtil.isWindows()) {
-                                Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL \"" + linkfile.toString() + "\"");
-                                Constants.zknlogger.log(Level.INFO, "Using rundll32 with filepath {0}", linkfile);
+                                System.out.println(linkfile.toString());
+                                desk.open(new File(linkfile.toString()));
+                               // Runtime.getRuntime().exec("rundll32 SHELL32.DLL,ShellExec_RunDLL \"" + linkfile.toString() + "\"");
+                                //Constants.zknlogger.log(Level.INFO, "Using rundll32 with filepath {0}", linkfile);
                             } else if (PlatformUtil.isLinux()) {
                                 Runtime.getRuntime().exec("xdg-open file://" + linuxpath.getPath());
                                 Constants.zknlogger.log(Level.INFO, "Using xdg-open with filepath {0}", linuxpath.getPath());
@@ -474,7 +495,7 @@ public class Tools {
                                     Constants.zknlogger.log(Level.INFO, "Using xdg-open with filepath {0}", linuxpath.getPath());
                                 } else {
                                     desk.open(linkfile);
-                                    Constants.zknlogger.log(Level.INFO, "Using dekstop api with filepath {0}", linkfile.getPath());
+                                    Constants.zknlogger.log(Level.INFO, "Using desktop api with filepath {0}", linkfile.getPath());
                                 }
                             } else {
                                 desk.open(linkfile);
