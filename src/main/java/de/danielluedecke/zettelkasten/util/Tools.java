@@ -360,13 +360,14 @@ public class Tools {
             return linktype;
         } // TODO enable if movie-player is installed/possible.
         // here we have a movie-url. if this link is activated, we want
-        // to play a moview in the hud-control-window (see CMoviePlayer).
+        // to play a moviw in the hud-control-window (see CMoviePlayer).
         // else if (linktype.startsWith("#mov")) {
         // CMoviePlayer movplay = new CMoviePlayer(linktype.substring(4));
         // movplay.showPlayer();
         // }
         // here comes the part which depends on the desktop-api
         else if (!linktype.startsWith("#")) {
+            Constants.zknlogger.info("Opening file");
             launchFile(linktype, frame, data, settings);
         }
         return null;
@@ -379,6 +380,7 @@ public class Tools {
      * @param settings
      */
     public static void launchFile(String linktype, Frame frame, Daten data, Settings settings) {
+        Constants.zknlogger.info("File: " + linktype);
         // check whether linktype is a hyperlink
         if (FileOperationsUtil.isHyperlink(linktype)) {
             try {
@@ -427,6 +429,10 @@ public class Tools {
         else {
             File linkfile;
             File linuxpath;
+            //to be compatible with the following legacy code
+            linktype = linktype.replace("file://","");
+            //html cleaning replaces //\ to / on windows
+            linktype = linktype.replace("file:/","");
             // create file from the link
             linkfile = FileOperationsUtil.getLinkFile(settings, data, linktype);
             // create path for linux with "file://" at beginning of string

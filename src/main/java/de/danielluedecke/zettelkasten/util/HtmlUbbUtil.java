@@ -714,17 +714,15 @@ public class HtmlUbbUtil {
      * @return the converted string with link-tags around the url's
      */
     public static String convertHyperlinks(String dummy) {
-        // check whether we already found links
-        if (-1 == dummy.indexOf("<a href=")) {
             // this group also considered ( and ) as end of hyperlink, but
             // Wikipedia links e.g. would not be converted correctly.
             // String groupEndOfURL = "[^ \"\\]\\)\\(\\[\\|\\t\\n\\r<]";
-            // if no hyperlinks have been found yet, do autoconvert
+
+            // replaces all urls that are not preceded by href or src (negative lookbehind)
             String groupEndOfURL = "[^ \"\\[\\]\\|\\t\\n\\r<]";
-            dummy = dummy.replaceAll("([\\w]+?://" + groupEndOfURL + "*)", "<a href=\"$1\">$1</a>");
-            dummy = dummy.replaceAll("([^://])(www\\." + groupEndOfURL + "*)", "$1<a href=\"http://$2\">$2</a>");
-            dummy = dummy.replaceAll("(mailto:)(" + groupEndOfURL + "*)", "$1<a href=\"mailto:$2\">$2</a>");
-        }
+            dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")(http://|https://)(" + groupEndOfURL + "*)", "<a href=\"$1$2\">$1$2</a>");
+            dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")([^://])(www\\." + groupEndOfURL + "*)", "$1<a href=\"http://$2\">$2</a>");
+            dummy = dummy.replaceAll("(?<!href=\")(?<!src=\")(mailto:)(" + groupEndOfURL + "*)", "<a href=\"mailto:$2\">$2</a>");
         return dummy;
     }
 
@@ -956,12 +954,16 @@ public class HtmlUbbUtil {
         // highlight text segments
         dummy = convertUbbHighlightSegments(dummy);
         dummy = dummy.replaceAll("\\[s ([^\\[]*)\\](.*?)\\[/s\\]", "<span class=\"highlight_$1\">$2</span>");
-        // autoconvert url's to hyperlinks
-        // we have to do this before(!) converting image-tags, otherwise the source-reference (file://) will
-        // be recognized as URL (that methods searches for xxxx://).
-        dummy = convertHyperlinks(dummy);
+
+
         // convert images, including resizing images
+        Constants.zknlogger.info("Before: " + dummy);
         dummy = convertImages(dataObj, settings, dummy, isExport);
+
+        // autoconvert url's to hyperlinks
+        dummy = convertHyperlinks(dummy);
+
+
         // convert possible table tags to html
         dummy = convertTablesToHTML(dummy);
         // convert possible form tags to html
@@ -1009,7 +1011,10 @@ public class HtmlUbbUtil {
                 }
             }
         }
+        Constants.zknlogger.info("Before: " + dummy);
+
         dummy = Jsoup.clean(dummy, relaxedWithoutImageProtocol());
+        Constants.zknlogger.info("After: " + dummy);
 
         return dummy;
     }
@@ -1277,11 +1282,12 @@ public class HtmlUbbUtil {
                 // if we found an image, go on
                 if (pos != -1) {
                     // find the end of the src-tag, so we know where to find the filename
-                    int end = dummy.indexOf("\"", pos + 10);
+                    int startOfSrcValue = pos+10;
+                    int end = dummy.indexOf("\"", startOfSrcValue);
                     // check for valid value
                     if (end != -1) {
                         try {
-                            int width, height, rw, rh;
+                            int width=Integer.MAX_VALUE, height=Integer.MAX_VALUE, rw, rh;
                             // create a new file from the imagepath
                             File imageFile = new File(dummy.substring(pos + addvalue, end));
                             try {
@@ -1290,16 +1296,23 @@ public class HtmlUbbUtil {
                                 // get the image's size (width/height)
                                 width = image.getWidth(null);
                                 height = image.getHeight(null);
-                                // check whether we have predefined resize values...
-                                if (resizevalues.size() > 0) {
-                                    rw = rh = resizevalues.get(valcnt);
-                                    valcnt++;
-                                } // ...or automatic recaling
-                                else {
-                                    // get the preferred maximum width and height
-                                    rw = settings.getImageResizeWidth();
-                                    rh = settings.getImageResizeHeight();
-                                }
+
+                            } catch (IOException ex) {
+                                Constants.zknlogger.log(Level.WARNING,"Could not read image");
+                              //  pos = end + 1;
+                              //  continue;
+                            }
+
+                            // check whether we have predefined resize values...
+                            if (resizevalues.size() > 0) {
+                                rw = rh = resizevalues.get(valcnt);
+                                valcnt++;
+                            } // ...or automatic rescaling
+                            else {
+                                // get the preferred maximum width and height
+                                rw = settings.getImageResizeWidth();
+                                rh = settings.getImageResizeHeight();
+                            }
                                 // if the image is larger than the preferred thumbnail-size, resize
                                 // width and height (proportionally)
                                 if (width > rw) {
@@ -1319,15 +1332,15 @@ public class HtmlUbbUtil {
                                 // surrounded by a hyperlink-tag that referrs to the original image
                                 if (!isExport) {
                                     resize.append("<a href=\"");
-                                    resize.append(dummy.substring(pos + addvalue, end));
+                                    resize.append(dummy.substring(startOfSrcValue, end));
                                     resize.append("\">");
                                 }
                                 resize.append(dummy.substring(pos, end + 1));
-                                resize.append(" width=\"");
-                                resize.append(String.valueOf(width));
-                                resize.append("\" height=\"");
-                                resize.append(String.valueOf(height));
-                                resize.append("\" border=\"0\">");
+                                resize.append(" style=\"max-width: ");
+                                resize.append(width);
+                                resize.append("px; max-height: ");
+                                resize.append(height);
+                                resize.append("px; border: 0\">");
                                 if (!isExport) {
                                     resize.append("</a>");
                                 }
@@ -1338,9 +1351,7 @@ public class HtmlUbbUtil {
                                 // set search-position indicator
                                 pos = newdummy.length();
                                 dummy = newdummy + dummy.substring(end + 2);
-                            } catch (IOException | IndexOutOfBoundsException ex) {
-                                pos = end + 1;
-                            }
+
                         } catch (IndexOutOfBoundsException ex) {
                         }
                     }
@@ -1389,9 +1400,12 @@ public class HtmlUbbUtil {
         //Since the table notation is apparently not standard-compliant,
         // we have to bypass the BBProcessor.
         dummy = dummy.replace("table]","table-bp]");
+        dummy = dummy.replace("img]","img-bp]");
         TextProcessor processor = BBProcessorFactory.getInstance().create();
         dummy = processor.process(dummy);
         dummy = dummy.replace("table-bp]","table]");
+        dummy = dummy.replace("img-bp]","img]");
+
         //modern browsers apparently don't render &#9; anymore, thus this is likely to fail in
         //the future. Also this is not supported by markdown. In order to provide a similar experience, replace
         //the tabstop with 8 spaces
@@ -1465,6 +1479,7 @@ public class HtmlUbbUtil {
         dummy = dummy.replaceAll("\\</h([^\\<]*)\\>\\<br\\>", "</h$1>");
 
         //images to ubb so that file paths can get fixed.
+        //TODO: this is markdown, should'nt this be under condition?
         dummy = dummy.replaceAll("[!]{1}\\[([^\\[]+)\\]\\(([^\\)]+)\\)", "[img]$2[/img]");
 
 
@@ -1524,7 +1539,6 @@ public class HtmlUbbUtil {
         } else {
             dummy = dummy.replace("[br]", "<br>");
 
-            Constants.zknlogger.info("Content: " + dummy);
 
 
         }
@@ -3066,7 +3080,7 @@ public class HtmlUbbUtil {
                 .addAttributes("blockquote", "cite")
                 .addAttributes("col", "span", "width")
                 .addAttributes("colgroup", "span", "width")
-                .addAttributes("img", "align", "alt", "height", "src", "title", "width")
+                .addAttributes("img", "align", "alt", "height", "src", "title", "width", "style")
                 .addAttributes("ol", "start", "type")
                 .addAttributes("q", "cite")
                 .addAttributes("table", "summary", "width")
@@ -3076,7 +3090,8 @@ public class HtmlUbbUtil {
                         "width")
                 .addAttributes("ul", "type")
 
-                .addProtocols("a", "href", "ftp", "http", "https", "mailto")
+
+                .addProtocols("a", "href", "ftp", "http", "https", "mailto", "file")
                 .addProtocols("blockquote", "cite", "http", "https")
                 .addProtocols("cite", "cite", "http", "https")
                 .addProtocols("q", "cite", "http", "https")

@@ -692,7 +692,7 @@ public class FileOperationsUtil {
 
     /**
      * This methods returns the path to an entry's attachment-file, which is
-     * passed as paraneter {@code linktye}. It creates an absolute path out from
+     * passed as paraneter {@code linktype}. It creates an absolute path out from
      * a relative path if necessray, which e.g. occures when having
      * entry-attachments.
      *
