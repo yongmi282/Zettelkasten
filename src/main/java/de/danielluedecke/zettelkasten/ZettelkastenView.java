@@ -60,9 +60,9 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLAnchorElement;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -90,6 +90,7 @@ import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -1821,6 +1822,32 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // the hyperlink-listeners
         //
+        Platform.runLater(() -> {
+                    webView.getEngine().getLoadWorker().stateProperty().addListener((observableValue, state, t1) -> {
+                        if (t1 == Worker.State.SUCCEEDED) {
+                            org.w3c.dom.events.EventListener listener = new org.w3c.dom.events.EventListener() {
+                                @Override
+                                public void handleEvent(org.w3c.dom.events.Event evt) {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    EventTarget target = evt.getCurrentTarget();
+                                    HTMLAnchorElement anchorElement = (HTMLAnchorElement) target;
+                                    String href = anchorElement.getHref();
+                                    try {
+                                        openHyperlink(URLDecoder.decode(href, "UTF-8"));
+                                    } catch (UnsupportedEncodingException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            };
+
+                            org.w3c.dom.Document doc = webView.getEngine().getDocument();
+                            NodeList lista = doc.getElementsByTagName("a");
+                            for (int i = 0; i < lista.getLength(); i++)
+                                ((EventTarget) lista.item(i)).addEventListener("click", listener, false);
+                        }
+                    });
+                });
         jEditorPaneEntry.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
             @Override
             public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
@@ -11834,23 +11861,6 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             VBox root = new VBox();
             Scene scene = new Scene(root);
             webView = new WebView();
-            webView.getEngine().getLoadWorker().stateProperty().addListener((observableValue, state, t1) -> {
-                if (t1 == Worker.State.SUCCEEDED) {
-                    org.w3c.dom.events.EventListener listener = new  org.w3c.dom.events.EventListener() {
-                        @Override
-                        public void handleEvent(org.w3c.dom.events.Event evt) {
-                            evt.preventDefault();
-                            evt.stopPropagation();
-                        }
-                    };
-
-                    org.w3c.dom.Document doc =  webView.getEngine().getDocument();
-                    NodeList lista = doc.getElementsByTagName("a");
-                    System.out.println("Count: " + lista.getLength());
-                    for (int i=0; i<lista.getLength(); i++)
-                        ((EventTarget)lista.item(i)).addEventListener("click", listener, false);
-                }
-            });
             webView.setMinWidth(0);
             webView.setMinHeight(0);
             VBox.setVgrow(webView, Priority.ALWAYS);
