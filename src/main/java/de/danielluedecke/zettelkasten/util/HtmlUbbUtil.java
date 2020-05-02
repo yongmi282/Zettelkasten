@@ -185,9 +185,6 @@ public class HtmlUbbUtil {
         String css;
         // select css-style
         switch (style) {
-            case HIGHLIGHT_STYLE_KEYWORDS:
-                css = "kw";
-                break;
             case HIGHLIGHT_STYLE_SEARCHRESULTS:
                 css = "sr";
                 break;
