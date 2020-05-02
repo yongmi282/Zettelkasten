@@ -185,6 +185,9 @@ public class HtmlUbbUtil {
         String css;
         // select css-style
         switch (style) {
+            case HIGHLIGHT_STYLE_KEYWORDS:
+                css = "kw";
+                break;
             case HIGHLIGHT_STYLE_SEARCHRESULTS:
                 css = "sr";
                 break;
@@ -1326,7 +1329,7 @@ public class HtmlUbbUtil {
                                 StringBuilder resize = new StringBuilder("");
                                 // here we extract the original img-source and add a
                                 // width and height attribute. furthermore, the image is
-                                // surrounded by a hyperlink-tag that refers to the original image
+                                // surrounded by a hyperlink-tag that referrs to the original image
                                 if (!isExport) {
                                     resize.append("<a href=\"");
                                     resize.append(dummy.substring(startOfSrcValue, end));
