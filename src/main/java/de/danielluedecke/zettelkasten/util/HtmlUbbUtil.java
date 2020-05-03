@@ -39,7 +39,6 @@ import com.vladsch.flexmark.ext.enumerated.reference.EnumeratedReferenceExtensio
 import com.vladsch.flexmark.ext.footnotes.FootnoteExtension;
 import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughSubscriptExtension;
 import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
-import com.vladsch.flexmark.ext.gitlab.GitLabExtension;
 import com.vladsch.flexmark.ext.ins.InsExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.ext.yaml.front.matter.YamlFrontMatterExtension;
@@ -51,26 +50,10 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 import de.danielluedecke.zettelkasten.ZettelkastenApp;
 import de.danielluedecke.zettelkasten.ZettelkastenView;
 import de.danielluedecke.zettelkasten.database.BibTex;
-import de.danielluedecke.zettelkasten.util.misc.Comparer;
 import de.danielluedecke.zettelkasten.database.Daten;
 import de.danielluedecke.zettelkasten.database.Settings;
 import de.danielluedecke.zettelkasten.tasks.export.ExportTools;
-import java.awt.Image;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import javax.imageio.ImageIO;
-import javax.swing.*;
-
+import de.danielluedecke.zettelkasten.util.misc.Comparer;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdom2.Element;
@@ -78,6 +61,19 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.kefirsf.bb.BBProcessorFactory;
 import org.kefirsf.bb.TextProcessor;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * This class is responsible for the creation of a html page of an zettelkasten
@@ -1329,7 +1325,7 @@ public class HtmlUbbUtil {
                                 StringBuilder resize = new StringBuilder("");
                                 // here we extract the original img-source and add a
                                 // width and height attribute. furthermore, the image is
-                                // surrounded by a hyperlink-tag that referrs to the original image
+                                // surrounded by a hyperlink-tag that refers to the original image
                                 if (!isExport) {
                                     resize.append("<a href=\"");
                                     resize.append(dummy.substring(startOfSrcValue, end));

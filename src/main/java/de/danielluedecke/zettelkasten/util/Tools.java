@@ -373,7 +373,7 @@ public class Tools {
             return linktype;
         } // TODO enable if movie-player is installed/possible.
         // here we have a movie-url. if this link is activated, we want
-        // to play a moviw in the hud-control-window (see CMoviePlayer).
+        // to play a movie in the hud-control-window (see CMoviePlayer).
         // else if (linktype.startsWith("#mov")) {
         // CMoviePlayer movplay = new CMoviePlayer(linktype.substring(4));
         // movplay.showPlayer();
