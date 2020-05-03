@@ -589,7 +589,7 @@ public class HtmlUbbUtil {
         // ***********************************************
         // initiate html-page, header
         // ***********************************************
-        retval.append("<html><head>").append(System.lineSeparator()); // NEW!
+        retval.append("<html style=\"min-width: 0px; min-height: 0px;\"><head>").append(System.lineSeparator()); // NEW!
         // first of all, prepare the header and style information of the main content
         retval.append("<style>").append(System.lineSeparator());
         // get the common style definition for the basic-tags
@@ -597,7 +597,7 @@ public class HtmlUbbUtil {
         // close style definition
         retval.append("</style>").append(System.lineSeparator());
         // close header and open body
-        retval.append("</head><body>").append(System.lineSeparator()); // NEW!
+        retval.append("</head><body style=\"min-width: 0px; min-height: 0px;\">").append(System.lineSeparator()); // NEW!
         // ***********************************************
         // init headline
         // ***********************************************
