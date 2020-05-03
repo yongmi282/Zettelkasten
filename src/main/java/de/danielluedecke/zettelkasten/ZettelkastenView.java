@@ -49,11 +49,13 @@ import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.*;
 import org.jdom2.Document;
@@ -580,6 +582,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
     private javax.swing.JEditorPane jEditorPaneEntry;
     private JFXPanel jfxPanel;
     private WebView webView;
+    private Stage stage;
     private javax.swing.JEditorPane jEditorPaneIsFollower;
     private javax.swing.JLabel jLabelMemory;
     private javax.swing.JList jListEntryKeywords;
@@ -1825,6 +1828,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         Platform.runLater(() -> {
                     webView.getEngine().getLoadWorker().stateProperty().addListener((observableValue, state, t1) -> {
                         if (t1 == Worker.State.SUCCEEDED) {
+
                             org.w3c.dom.events.EventListener listener = new org.w3c.dom.events.EventListener() {
                                 @Override
                                 public void handleEvent(org.w3c.dom.events.Event evt) {
@@ -3923,6 +3927,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
     private void displayZettelContent(int nr) {
         // retrieve the string array of the first entry
         String disp = data.getEntryAsHtml(nr, (settings.getHighlightSegments()) ? retrieveSelectedKeywordsFromList() : null, Constants.FRAME_MAIN);
+
         // in case parsing was ok, display the entry
         if (Tools.isValidHTML(disp, nr)) {
             // set entry information in the main textfield
@@ -11858,15 +11863,19 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         jScrollPane1.setViewportView(jfxPanel);
 
         Platform.runLater(() -> {
-            VBox root = new VBox();
-            Scene scene = new Scene(root);
+            stage = new Stage();
+
+            stage.setTitle("Hello Java FX");
+            stage.setResizable(true);
+
             webView = new WebView();
             webView.setMinWidth(0);
             webView.setMinHeight(0);
-            VBox.setVgrow(webView, Priority.ALWAYS);
             webView.setContextMenuEnabled(false);
-            root.getChildren().add(webView);
+            Scene scene = new Scene(webView,80,20);
+            stage.setScene(scene);
             jfxPanel.setScene(scene);
+            jfxPanel.setMinimumSize(new Dimension(0,0));
         });
 
        /* jEditorPaneEntry.setEditable(false);
