@@ -11872,6 +11872,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             webView.setMinWidth(0);
             webView.setMinHeight(0);
             webView.setContextMenuEnabled(false);
+            webView.setZoom(1.25);
             Scene scene = new Scene(webView,80,20);
             stage.setScene(scene);
             jfxPanel.setScene(scene);
