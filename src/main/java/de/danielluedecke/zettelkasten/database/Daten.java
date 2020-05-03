@@ -6127,7 +6127,7 @@ public class Daten {
      * in the XML-datafile. So we have the "plain text" here, <i>with</i>
      * format-tags, but <i>not</i> prepared for HTML-display.<br><br>
      * However, you can encode Unicode chars into its equivalent HTML entities
-     * nby setting the parameter {@code encodeUTF} to {@code true}. This is
+     * by setting the parameter {@code encodeUTF} to {@code true}. This is
      * necessary when exporting entries to HTML or PDF.
      * <br><br>
      * Use {@link #getEntryAsHtml(int, java.lang.String[]) getEntryAsHtml()} if
