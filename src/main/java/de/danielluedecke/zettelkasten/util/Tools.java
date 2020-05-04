@@ -42,13 +42,9 @@ import de.danielluedecke.zettelkasten.database.Settings;
 import de.danielluedecke.zettelkasten.database.Synonyms;
 
 import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DateFormat;
@@ -76,9 +72,20 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.parser.ParserDelegator;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.jdom2.Element;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.w3c.dom.Node;
 
 /**
  *
@@ -1513,44 +1520,90 @@ public class Tools {
      * @param displayedZettel the currently displayed entry
      * @param editorPane      the editor pane which is the copy source
      */
-    public static void copyPlain(Daten dataObj, int displayedZettel, javax.swing.JEditorPane editorPane) {
-        // create string builder that will contain complete plain entry
-        StringBuilder plainEntry = new StringBuilder("");
-        // retrieve entry's title
-        String title = dataObj.getZettelTitle(displayedZettel);
-        // check whether entry has any title
-        if (title != null && !title.isEmpty()) {
-            // if yes, add title and line separator to string builder
-            plainEntry.append(title);
-            plainEntry.append(System.lineSeparator());
-        }
-        // retrieve plain entry that contains no ubb-tags and add it
-        // to our string builder
-        plainEntry.append(dataObj.getCleanZettelContent(displayedZettel));
-        // get start and end of selection
-        int selstart = editorPane.getSelectionStart() - 1;
-        int selend = editorPane.getSelectionEnd() - 1;
-        // fix value if necessary
-        if (selstart < 0) {
-            selstart = 0;
-        }
-        // check whether end exceeds the string builders length - this is the case
-        // e.g. if the user also selectes the time stamp...
-        if (selend >= plainEntry.length()) {
-            selend = plainEntry.length() - 1;
-        }
-        // copy selection to string
-        String selectedText = plainEntry.toString().substring(selstart, selend).trim();
-        // if no text selected, quit
-        if (selectedText.isEmpty()) {
-            return;
-        }
-        // create new string-selection
-        StringSelection stringSelection = new StringSelection(selectedText);
-        // and copy string to clipboard
+    public static void copyPlain(Daten dataObj, int displayedZettel, WebView webView) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(stringSelection, null);
+        Platform.runLater(() -> {
+            String plainSelection = (String) webView.getEngine()
+                    .executeScript("window.getSelection().toString()");
+            clipboard.setContents(new StringSelection(plainSelection), null);
+        });
+
     }
+
+    public static void copy(Daten dataObj, int displayedZettel, WebView webView) {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Platform.runLater(() -> {
+            System.out.println((String) webView.getEngine()
+                    .executeScript("getSelectionHtml()"));
+            String plainSelection = (String) webView.getEngine()
+                    .executeScript("getSelectionHtml()");
+            clipboard.setContents(new HtmlSelection(plainSelection), null);
+        });
+
+    }
+
+    private static class HtmlSelection implements Transferable {
+
+        private static List<DataFlavor> htmlFlavors = new ArrayList<>(3);
+
+        static {
+
+            try {
+                htmlFlavors.add(new DataFlavor("text/html;class=java.lang.String"));
+                htmlFlavors.add(new DataFlavor("text/html;class=java.io.Reader"));
+                htmlFlavors.add(new DataFlavor("text/html;charset=unicode;class=java.io.InputStream"));
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+
+        }
+
+        private String html;
+
+        public HtmlSelection(String html) {
+            this.html = html;
+        }
+
+        public DataFlavor[] getTransferDataFlavors() {
+            return (DataFlavor[]) htmlFlavors.toArray(new DataFlavor[htmlFlavors.size()]);
+        }
+
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+            return htmlFlavors.contains(flavor);
+        }
+
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException {
+            if (String.class.equals(flavor.getRepresentationClass())) {
+                return html;
+            } else if (Reader.class.equals(flavor.getRepresentationClass())) {
+                return new StringReader(html);
+            } else if (InputStream.class.equals(flavor.getRepresentationClass())) {
+                return new StringReader(html);
+            }
+            throw new UnsupportedFlavorException(flavor);
+        }
+    }
+
+
+
+    public static String documentToString(org.w3c.dom.Document doc) {
+        try {
+            StringWriter sw = new StringWriter();
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.METHOD, "html");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+            transformer.transform(new DOMSource((Node) doc), new StreamResult(sw));
+            return sw.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error converting to String", ex);
+        }
+    }
+
+
 
     /**
      * This method returns the current date as string in the following format:
@@ -2009,4 +2062,5 @@ public class Tools {
         }
         return false;
     }
+
 }

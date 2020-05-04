@@ -596,6 +596,8 @@ public class HtmlUbbUtil {
         retval.append(getCommonStyleDefinition(settings, segmentKeywords, dataObj.getKeywords(entrynr), false, false));
         // close style definition
         retval.append("</style>").append(System.lineSeparator());
+
+        retval.append("<script src=\"").append(org.jdesktop.application.Application.getInstance(ZettelkastenApp.class).getClass().getResource("/de/danielluedecke/zettelkasten/utils.js")).append("\"").append(" type=\"text/javascript\"").append("></script>\n");
         // close header and open body
         retval.append("</head><body style=\"margin: 0\">").append(System.lineSeparator()); // NEW!
         // ***********************************************
@@ -953,7 +955,6 @@ public class HtmlUbbUtil {
 
 
         // convert images, including resizing images
-        Constants.zknlogger.info("Before: " + dummy);
         dummy = convertImages(dataObj, settings, dummy, isExport);
 
         // autoconvert url's to hyperlinks
@@ -1007,10 +1008,8 @@ public class HtmlUbbUtil {
                 }
             }
         }
-        Constants.zknlogger.info("Before: " + dummy);
 
         dummy = Jsoup.clean(dummy, relaxedWithoutImageProtocol());
-        Constants.zknlogger.info("After: " + dummy);
 
         return dummy;
     }

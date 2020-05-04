@@ -5801,7 +5801,12 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
 
     @Action
     public void copyPlain() {
-        Tools.copyPlain(data, displayedZettel, jEditorPaneEntry);
+        Tools.copyPlain(data, displayedZettel, webView);
+    }
+
+    @Action
+    public void copy() {
+        Tools.copy(data, displayedZettel, webView);
     }
 
     /**
@@ -11321,7 +11326,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         jSplitPaneMain2 = new javax.swing.JSplitPane();
         jPanel17 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jfxPanel = new JFXPanel();
+
         jEditorPaneEntry = new javax.swing.JEditorPane();
         jPanelLiveSearch = new javax.swing.JPanel();
         jTextFieldLiveSearch = new javax.swing.JTextField();
@@ -11860,7 +11865,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         jScrollPane1.setBorder(null);
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
-        jScrollPane1.setViewportView(jfxPanel);
+        jfxPanel = new JFXPanel();
 
         Platform.runLater(() -> {
             stage = new Stage();
@@ -11871,11 +11876,14 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             webView.setMinWidth(0);
             webView.setMinHeight(0);
             webView.setContextMenuEnabled(false);
+            webView.getEngine().setJavaScriptEnabled(true);
             Scene scene = new Scene(webView,80,20);
             stage.setScene(scene);
             jfxPanel.setScene(scene);
             jfxPanel.setMinimumSize(new Dimension(0,0));
         });
+
+        jScrollPane1.setViewportView(jfxPanel);
 
        /* jEditorPaneEntry.setEditable(false);
         jEditorPaneEntry.setBorder(null);
