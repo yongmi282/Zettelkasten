@@ -3449,7 +3449,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             // clear all table contents
             clearTreesAndTables();
         } else {
-            // Here we set up alle the textfields and lists
+            // Here we set up all the textfields and lists
             updateDisplayParts(data.getCurrentZettelPos());
             statusOfEntryLabel.setText(getResourceMap().getString("entryOfText") + " " + String.valueOf(data.getCount(Daten.ZKNCOUNT)));
         }
