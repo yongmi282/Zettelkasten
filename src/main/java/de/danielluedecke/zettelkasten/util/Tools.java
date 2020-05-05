@@ -1515,10 +1515,9 @@ public class Tools {
     /**
      * This method copies selected text in plain format into the clipboard.
      *
-     * @param dataObj         a reference to the CDaten class. Needed to retrieve the
-     *                        enty's content
+     * @param dataObj         a reference to the Daten class. Needed to retrieve the entry's content
      * @param displayedZettel the currently displayed entry
-     * @param editorPane      the editor pane which is the copy source
+     * @param webView         the WebView which is the copy source
      */
     public static void copyPlain(Daten dataObj, int displayedZettel, WebView webView) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
