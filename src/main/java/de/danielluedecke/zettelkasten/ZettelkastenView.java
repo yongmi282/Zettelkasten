@@ -46,14 +46,10 @@ import de.danielluedecke.zettelkasten.tasks.export.ExportTools;
 import de.danielluedecke.zettelkasten.util.*;
 import de.danielluedecke.zettelkasten.util.misc.*;
 import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.jdesktop.application.Action;
@@ -1321,9 +1317,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // this actionn for the checkbox toggles the setting whether the synonyms
         // should be included in the keywordlist of the jtablekeywords or not
-        jCheckBoxShowSynonyms.addActionListener(new java.awt.event.ActionListener() {
+        jCheckBoxShowSynonyms.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 // change setting
                 settings.setShowSynonymsInTable(jCheckBoxShowSynonyms.isSelected());
                 // tell that keywordlist is no longer up to date
@@ -1335,9 +1331,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         // this actionn for the checkbox toggles the setting whether all follower
         // entries, including top-level parents, should be shown, or whether
         // current entry is the root of the treeview
-        jCheckBoxShowAllLuhmann.addActionListener(new java.awt.event.ActionListener() {
+        jCheckBoxShowAllLuhmann.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 // change setting
                 settings.setShowAllLuhmann(jCheckBoxShowAllLuhmann.isSelected());
                 // refresh follower view
@@ -1349,9 +1345,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         // "related" means, that we retrieve the current entry's keywords and search through
         // all entries and retrieve those entries' keywords as well, if these entries'
         // keywords contain at least one keyword of the current entry's keywords.
-        jCheckBoxCluster.addActionListener(new java.awt.event.ActionListener() {
+        jCheckBoxCluster.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 // tell that clusterlist is no longer up to date
                 data.setClusterlistUpToDate(false);
                 // refresh cluster list
@@ -1377,9 +1373,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         // select the last active look and feel
         jComboBoxAuthorType.setSelectedIndex(0);
         // init actionlistener
-        jComboBoxAuthorType.addActionListener(new java.awt.event.ActionListener() {
+        jComboBoxAuthorType.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 // authorlist needs update
                 data.setAuthorlistUpToDate(false);
                 // show authors
@@ -1392,9 +1388,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         // here we set up a popup-trigger for the jListEntryKeywords and how this component
         // should react on mouse-clicks. a single click filters the jTableLinks, a double-click
         // starts a keyword-search
-        jListEntryKeywords.addMouseListener(new java.awt.event.MouseAdapter() {
+        jListEntryKeywords.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuKeywordList.isVisible()) {
                     jPopupMenuKeywordList.show(jListEntryKeywords, evt.getPoint().x, evt.getPoint().y);
@@ -1402,7 +1398,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuKeywordList.isVisible()) {
                     jPopupMenuKeywordList.show(jListEntryKeywords, evt.getPoint().x, evt.getPoint().y);
@@ -1410,7 +1406,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, leeave...
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1452,9 +1448,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             });
         });
 
-        jTableLinks.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableLinks.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLinks.isVisible()) {
                     jPopupMenuLinks.show(jTableLinks, evt.getPoint().x, evt.getPoint().y);
@@ -1462,7 +1458,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLinks.isVisible()) {
                     jPopupMenuLinks.show(jTableLinks, evt.getPoint().x, evt.getPoint().y);
@@ -1470,7 +1466,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1482,9 +1478,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableManLinks.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableManLinks.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLinks.isVisible()) {
                     jPopupMenuLinks.show(jTableManLinks, evt.getPoint().x, evt.getPoint().y);
@@ -1492,7 +1488,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLinks.isVisible()) {
                     jPopupMenuLinks.show(jTableManLinks, evt.getPoint().x, evt.getPoint().y);
@@ -1500,7 +1496,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1512,9 +1508,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableKeywords.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableKeywords.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuKeywords.isVisible()) {
                     jPopupMenuKeywords.show(jTableKeywords, evt.getPoint().x, evt.getPoint().y);
@@ -1522,7 +1518,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuKeywords.isVisible()) {
                     jPopupMenuKeywords.show(jTableKeywords, evt.getPoint().x, evt.getPoint().y);
@@ -1530,7 +1526,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1542,9 +1538,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableAuthors.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableAuthors.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuAuthors.isVisible()) {
                     jPopupMenuAuthors.show(jTableAuthors, evt.getPoint().x, evt.getPoint().y);
@@ -1552,7 +1548,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuAuthors.isVisible()) {
                     jPopupMenuAuthors.show(jTableAuthors, evt.getPoint().x, evt.getPoint().y);
@@ -1560,7 +1556,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1572,9 +1568,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableTitles.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableTitles.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuTitles.isVisible()) {
                     jPopupMenuTitles.show(jTableTitles, evt.getPoint().x, evt.getPoint().y);
@@ -1582,7 +1578,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuTitles.isVisible()) {
                     jPopupMenuTitles.show(jTableTitles, evt.getPoint().x, evt.getPoint().y);
@@ -1590,7 +1586,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1602,9 +1598,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableBookmarks.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableBookmarks.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuBookmarks.isVisible()) {
                     jPopupMenuBookmarks.show(jTableBookmarks, evt.getPoint().x, evt.getPoint().y);
@@ -1612,7 +1608,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuBookmarks.isVisible()) {
                     jPopupMenuBookmarks.show(jTableBookmarks, evt.getPoint().x, evt.getPoint().y);
@@ -1620,7 +1616,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1632,9 +1628,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTableAttachments.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTableAttachments.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuAttachments.isVisible()) {
                     jPopupMenuAttachments.show(jTableAttachments, evt.getPoint().x, evt.getPoint().y);
@@ -1642,7 +1638,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuAttachments.isVisible()) {
                     jPopupMenuAttachments.show(jTableAttachments, evt.getPoint().x, evt.getPoint().y);
@@ -1650,7 +1646,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1662,9 +1658,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTreeLuhmann.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTreeLuhmann.addMouseListener(new MouseAdapter() {
             @Override
-            public void mousePressed(java.awt.event.MouseEvent evt) {
+            public void mousePressed(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLuhmann.isVisible()) {
                     jPopupMenuLuhmann.show(jTreeLuhmann, evt.getPoint().x, evt.getPoint().y);
@@ -1672,7 +1668,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
+            public void mouseReleased(MouseEvent evt) {
                 // check whether the popup-trigger-mouse-key was pressed
                 if (evt.isPopupTrigger() && !jPopupMenuLuhmann.isVisible()) {
                     jPopupMenuLuhmann.show(jTreeLuhmann, evt.getPoint().x, evt.getPoint().y);
@@ -1680,7 +1676,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1692,9 +1688,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTreeCluster.addMouseListener(new java.awt.event.MouseAdapter() {
+        jTreeCluster.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1706,9 +1702,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jLabelMemory.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabelMemory.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(MouseEvent evt) {
                 // this listener should only react on left-mouse-button-clicks...
                 // if other button then left-button clicked, don't count it.
                 if (evt.getButton() != MouseEvent.BUTTON1) {
@@ -1723,9 +1719,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // here we start with key-listeners
         //
-        jListEntryKeywords.addKeyListener(new java.awt.event.KeyAdapter() {
+        jListEntryKeywords.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 // if a navigation-key (arrows, page-down/up, home etc.) is pressed,
                 // we assume a new item-selection, so behave like on a mouse-click and
                 // filter the links
@@ -1736,9 +1732,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTextFieldLiveSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldLiveSearch.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 // when the user presses the escape-key, hide panel
                 if (KeyEvent.VK_ESCAPE == evt.getKeyCode()) {
                     findLiveCancel();
@@ -1756,9 +1752,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTreeCluster.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTreeCluster.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 // if a navigation-key (arrows, page-down/up, home etc.) is pressed,
                 // we assume a new item-selection, so behave like on a mouse-click and
                 // show the cluster relations.
@@ -1767,9 +1763,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTextFieldFilterKeywords.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldFilterKeywords.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 if (Tools.isNavigationKey(evt.getKeyCode())) {
                     // if user pressed navigation key, select next table entry
                     TableUtils.navigateThroughList(jTableKeywords, evt.getKeyCode());
@@ -1779,9 +1775,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTextFieldFilterAuthors.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldFilterAuthors.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 if (Tools.isNavigationKey(evt.getKeyCode())) {
                     // if user pressed navigation key, select next table entry
                     TableUtils.navigateThroughList(jTableAuthors, evt.getKeyCode());
@@ -1791,9 +1787,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTextFieldFilterTitles.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldFilterTitles.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 if (Tools.isNavigationKey(evt.getKeyCode())) {
                     // if user pressed navigation key, select next table entry
                     TableUtils.navigateThroughList(jTableTitles, evt.getKeyCode());
@@ -1803,16 +1799,16 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 }
             }
         });
-        jTextFieldFilterCluster.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldFilterCluster.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 // select treenode live, while the user is typing...
                 TreeUtil.selectByTyping(jTreeCluster, jTextFieldFilterCluster);
             }
         });
-        jTextFieldFilterAttachments.addKeyListener(new java.awt.event.KeyAdapter() {
+        jTextFieldFilterAttachments.addKeyListener(new KeyAdapter() {
             @Override
-            public void keyReleased(java.awt.event.KeyEvent evt) {
+            public void keyReleased(KeyEvent evt) {
                 if (Tools.isNavigationKey(evt.getKeyCode())) {
                     // if user pressed navigation key, select next table entry
                     TableUtils.navigateThroughList(jTableAttachments, evt.getKeyCode());
@@ -1852,13 +1848,13 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                         }
                     });
                 });
-        jEditorPaneEntry.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        jEditorPaneEntry.addHyperlinkListener(new HyperlinkListener() {
             @Override
-            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+            public void hyperlinkUpdate(HyperlinkEvent evt) {
                 // if the link was clicked, proceed
                 if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     // get input event with additional modifiers
-                    java.awt.event.InputEvent inev = evt.getInputEvent();
+                    InputEvent inev = evt.getInputEvent();
                     // check whether shift key was pressed, and if so, remove manual link
                     if (inev.isControlDown() || inev.isMetaDown()) {
                         if (Tools.removeHyperlink(evt.getDescription(), data, displayedZettel)) {
@@ -1885,9 +1881,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // the hyperlink-listeners
         //
-        jEditorPaneIsFollower.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        jEditorPaneIsFollower.addHyperlinkListener(new HyperlinkListener() {
             @Override
-            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+            public void hyperlinkUpdate(HyperlinkEvent evt) {
                 // if the link was clicked, proceed
                 if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     openHyperlink(evt.getDescription());
@@ -1897,9 +1893,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // the hyperlink-listeners
         //
-        jEditorPaneClusterEntries.addHyperlinkListener(new javax.swing.event.HyperlinkListener() {
+        jEditorPaneClusterEntries.addHyperlinkListener(new HyperlinkListener() {
             @Override
-            public void hyperlinkUpdate(javax.swing.event.HyperlinkEvent evt) {
+            public void hyperlinkUpdate(HyperlinkEvent evt) {
                 // if the link was clicked, proceed
                 if (evt.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     openHyperlink(evt.getDescription());
@@ -1920,11 +1916,11 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // finally, init the selection listeners...
         //
-        javax.swing.JTable[] tables = new javax.swing.JTable[]{jTableLinks, jTableManLinks, jTableAuthors,
+        JTable[] tables = new JTable[]{jTableLinks, jTableManLinks, jTableAuthors,
                 jTableTitles, jTableBookmarks, jTableAttachments
         };
 
-        for (javax.swing.JTable t : tables) {
+        for (JTable t : tables) {
             SelectionListener listener = new SelectionListener(t);
             t.getSelectionModel().addListSelectionListener(listener);
             t.getColumnModel().getSelectionModel().addListSelectionListener(listener);
@@ -1936,9 +1932,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                 showEntryFromLuhmann();
             }
         });
-        jTreeLuhmann.addTreeExpansionListener(new javax.swing.event.TreeExpansionListener() {
+        jTreeLuhmann.addTreeExpansionListener(new TreeExpansionListener() {
             @Override
-            public void treeExpanded(javax.swing.event.TreeExpansionEvent evt) {
+            public void treeExpanded(TreeExpansionEvent evt) {
                 // retrieve path of value that was expanded
                 TreePath tp = evt.getPath();
                 // check whether root was expanded or not. therefore, retrieve
@@ -1950,7 +1946,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void treeCollapsed(javax.swing.event.TreeExpansionEvent evt) {
+            public void treeCollapsed(TreeExpansionEvent evt) {
                 // retrieve path of value that was expanded
                 TreePath tp = evt.getPath();
                 // check whether root was expanded or not. therefore, retrieve
@@ -1964,9 +1960,9 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         //
         // init the menu-listeners...
         //
-        recentDocsSubMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        recentDocsSubMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 updateRecentDocumentMenuIcon(recentDoc1, settings.getRecentDoc(1));
                 updateRecentDocumentMenuIcon(recentDoc2, settings.getRecentDoc(2));
                 updateRecentDocumentMenuIcon(recentDoc3, settings.getRecentDoc(3));
@@ -1978,175 +1974,175 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        recentDoc1.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc1.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(1);
                 if (fp != null) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc2.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc2.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(2);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc3.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc3.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(3);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc4.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc4.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(4);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc5.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc5.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(5);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc6.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc6.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(6);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc7.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc7.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(7);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        recentDoc8.addActionListener(new java.awt.event.ActionListener() {
+        recentDoc8.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent evt) {
                 String fp = settings.getRecentDoc(8);
                 if (fp != null && !fp.isEmpty()) {
                     openDocument(fp);
                 }
             }
         });
-        fileMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        fileMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 menuFileInformation.setEnabled(settings.getFilePath() != null && settings.getFilePath().exists());
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 highlightSegmentsMenuItem.setSelected(settings.getHighlightSegments());
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        editMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        editMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // set indicator which show whether we have selections or not
                 setListFilledWithEntry(!jListEntryKeywords.getSelectedValuesList().isEmpty());
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        windowsMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        windowsMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 showSearchResultsMenuItem.setEnabled(searchrequests.getCount() > 0);
                 showDesktopMenuItem.setEnabled(desktop.getCount() > 0);
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        findEntryKeywordsMenu.addMenuListener(new javax.swing.event.MenuListener() {
+        findEntryKeywordsMenu.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // set indicator which show whether we have selections or not
                 setListFilledWithEntry(!jListEntryKeywords.getSelectedValuesList().isEmpty());
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuLinks.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuLinks.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 initViewMenuLinks();
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuAuthors.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuAuthors.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // new keyword is always possible
                 viewAuthorsNew.setEnabled(true);
                 // at least one selection needed
@@ -2156,32 +2152,32 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuBookmarks.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuBookmarks.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // at least one selection needed
                 setTableEntriesSelected(jTableBookmarks.getSelectedRowCount() > 0);
                 setExportPossible(jTableBookmarks.getRowCount() > 0);
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuKeywords.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuKeywords.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // new keyword is always possible
                 viewKeywordsNew.setEnabled(true);
                 // at least one selection needed
@@ -2190,16 +2186,16 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuAttachments.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuAttachments.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // get the amount of selected rows
                 // at least one selection needed
                 setTableEntriesSelected(jTableAttachments.getSelectedRowCount() > 0);
@@ -2207,16 +2203,16 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuTitles.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuTitles.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // get the amount of selected rows
                 // at least one selection needed
                 setTableEntriesSelected(jTableTitles.getSelectedRowCount() > 0);
@@ -2224,16 +2220,16 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuLuhmann.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuLuhmann.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 // set selected state
                 viewMenuLuhmannShowNumbers.setSelected(settings.getShowLuhmannEntryNumber());
                 // retrieve selected node
@@ -2245,33 +2241,33 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
-        viewMenuCluster.addMenuListener(new javax.swing.event.MenuListener() {
+        viewMenuCluster.addMenuListener(new MenuListener() {
             @Override
-            public void menuSelected(javax.swing.event.MenuEvent evt) {
+            public void menuSelected(MenuEvent evt) {
                 setExportPossible(clusterList.size() > 0);
             }
 
             @Override
-            public void menuDeselected(javax.swing.event.MenuEvent evt) {
+            public void menuDeselected(MenuEvent evt) {
             }
 
             @Override
-            public void menuCanceled(javax.swing.event.MenuEvent evt) {
+            public void menuCanceled(MenuEvent evt) {
             }
         });
         //
         // init the menu-listeners...
         //
-        jPopupMenuKeywords.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuKeywords.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // new keyword is always possible
                 popupKeywordsNew.setEnabled(true);
                 // at least one selection needed
@@ -2279,31 +2275,31 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuKeywordList.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuKeywordList.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 initViewMenuLinks();
                 popupKwListHighlightSegments.setSelected(settings.getHighlightSegments());
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuAuthors.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuAuthors.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // new keyword is always possible
                 popupAuthorsNew.setEnabled(true);
                 // at least one selection needed
@@ -2311,16 +2307,16 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuLuhmann.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuLuhmann.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // retrieve selected node
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) jTreeLuhmann.getLastSelectedPathComponent();
                 // check whether any selection made, that is not the root
@@ -2329,75 +2325,75 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuTitles.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuTitles.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // at least one selection needed
                 setTableEntriesSelected(jTableTitles.getSelectedRowCount() > 0);
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuBookmarks.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuBookmarks.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // at least one selection needed
                 setTableEntriesSelected(jTableBookmarks.getSelectedRowCount() > 0);
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuLinks.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuLinks.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 initViewMenuLinks();
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuAttachments.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuAttachments.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 // at least one selection needed
                 setTableEntriesSelected(jTableAttachments.getSelectedRowCount() > 0);
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
-        jPopupMenuMain.addPopupMenuListener(new javax.swing.event.PopupMenuListener() {
+        jPopupMenuMain.addPopupMenuListener(new PopupMenuListener() {
             @Override
-            public void popupMenuWillBecomeVisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeVisible(PopupMenuEvent evt) {
                 try {
                     // set copy/cut actions en- or disabled, depending on whether we have
                     // selected text or not
@@ -2418,19 +2414,19 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
             }
 
             @Override
-            public void popupMenuWillBecomeInvisible(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuWillBecomeInvisible(PopupMenuEvent evt) {
             }
 
             @Override
-            public void popupMenuCanceled(javax.swing.event.PopupMenuEvent evt) {
+            public void popupMenuCanceled(PopupMenuEvent evt) {
             }
         });
         //
         // all other listeners that haven't been set up yet...
         //
-        jTabbedPaneMain.addChangeListener(new javax.swing.event.ChangeListener() {
+        jTabbedPaneMain.addChangeListener(new ChangeListener() {
             @Override
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+            public void stateChanged(ChangeEvent evt) {
                 updateTabbedPane();
             }
         });
