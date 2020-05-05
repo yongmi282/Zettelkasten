@@ -85,7 +85,7 @@ public class CSettingsDlg extends javax.swing.JDialog {
     /**
      * Used to retrieve all installed look'n'feels...
      */
-    private UIManager.LookAndFeelInfo installed_laf[];
+    private UIManager.LookAndFeelInfo[] installed_laf;
     /**
      * The different fonts, used to retrieve the font settings and for the
      * font-chooser-dialog

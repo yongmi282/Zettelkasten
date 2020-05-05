@@ -1086,7 +1086,7 @@ public class NewEntryFrame extends javax.swing.JFrame implements WindowListener,
         // and remove border from the main panel
         newEntryMainPanel.setBorder(null);
         // init toolbar button array
-        javax.swing.JButton toolbarButtons[] = new javax.swing.JButton[]{
+        javax.swing.JButton[] toolbarButtons = new javax.swing.JButton[]{
             tb_cut, tb_copy, tb_paste, tb_selectall, tb_undo, tb_redo, tb_newauthor,
             tb_manlink, tb_footnote, tb_insertimage, tb_inserttable, tb_insertattachment,
             tb_bold, tb_italic, tb_underline, tb_strike, tb_textcolor, tb_highlight

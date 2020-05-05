@@ -2542,7 +2542,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
         // and remove border from the main panel
         mainPanel.setBorder(null);
         // init toolbar button array
-        javax.swing.JButton toolbarButtons[] = new javax.swing.JButton[]{
+        javax.swing.JButton[] toolbarButtons = new javax.swing.JButton[]{
                 tb_open, tb_save, tb_first, tb_next, tb_prev, tb_copy, tb_paste, tb_newEntry,
                 tb_edit, tb_find, tb_addtodesktop, tb_addbookmark, tb_delete, tb_addluhmann,
                 tb_addmanlinks, tb_selectall, tb_last
@@ -7053,7 +7053,7 @@ public class ZettelkastenView extends FrameView implements WindowListener, DropT
                         // check if authors have been dropped
                         if (sourceinformation[0].equals(Constants.DRAG_SOURCE_TYPE_AUTHORS)) {
                             // new array
-                            String aus[] = new String[sourceinformation.length - 1];
+                            String[] aus = new String[sourceinformation.length - 1];
                             // prepare new array without drag info
                             for (int i = 1; i < sourceinformation.length; i++) {
                                 aus[i - 1] = sourceinformation[i];

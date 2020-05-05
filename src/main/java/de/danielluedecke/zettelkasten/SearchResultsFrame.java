@@ -33,55 +33,16 @@
 
 package de.danielluedecke.zettelkasten;
 
+import de.danielluedecke.zettelkasten.database.*;
 import de.danielluedecke.zettelkasten.mac.MacSourceList;
-import de.danielluedecke.zettelkasten.database.Settings;
-import de.danielluedecke.zettelkasten.database.AcceleratorKeys;
-import de.danielluedecke.zettelkasten.database.SearchRequests;
-import de.danielluedecke.zettelkasten.database.Synonyms;
-import de.danielluedecke.zettelkasten.util.*;
-import de.danielluedecke.zettelkasten.util.misc.DateComparer;
-import de.danielluedecke.zettelkasten.util.misc.Comparer;
-import de.danielluedecke.zettelkasten.database.Daten;
-import de.danielluedecke.zettelkasten.database.BibTex;
-import de.danielluedecke.zettelkasten.database.DesktopData;
 import de.danielluedecke.zettelkasten.mac.ZknMacWidgetFactory;
 import de.danielluedecke.zettelkasten.tasks.TaskProgressDialog;
+import de.danielluedecke.zettelkasten.util.*;
+import de.danielluedecke.zettelkasten.util.misc.Comparer;
+import de.danielluedecke.zettelkasten.util.misc.DateComparer;
+import org.jdesktop.application.Action;
 
-import java.awt.AWTKeyStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GraphicsDevice;
-import java.awt.IllegalComponentStateException;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowSorter;
+import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.ListSelectionEvent;
@@ -91,7 +52,19 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.html.HTML;
-import org.jdesktop.application.Action;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.net.URL;
+import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 
 /**
@@ -294,7 +267,7 @@ public class SearchResultsFrame extends javax.swing.JFrame {
         // and remove border from the main panel
         searchMainPanel.setBorder(null);
         // init toolbar button array
-        javax.swing.JButton toolbarButtons[] = new javax.swing.JButton[] {
+        javax.swing.JButton[] toolbarButtons = new javax.swing.JButton[] {
             tb_copy, tb_selectall, tb_editentry, tb_remove, tb_manlinks,
             tb_luhmann, tb_bookmark, tb_desktop, tb_highlight
         };

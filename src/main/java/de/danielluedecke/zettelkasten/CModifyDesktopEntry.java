@@ -33,34 +33,20 @@
 
 package de.danielluedecke.zettelkasten;
 
-import de.danielluedecke.zettelkasten.database.Settings;
-import de.danielluedecke.zettelkasten.database.AutoKorrektur;
 import de.danielluedecke.zettelkasten.database.AcceleratorKeys;
+import de.danielluedecke.zettelkasten.database.AutoKorrektur;
+import de.danielluedecke.zettelkasten.database.Settings;
 import de.danielluedecke.zettelkasten.database.StenoData;
-import de.danielluedecke.zettelkasten.util.Tools;
-import de.danielluedecke.zettelkasten.util.Constants;
-import de.danielluedecke.zettelkasten.util.ColorUtil;
-import de.danielluedecke.zettelkasten.util.NewEntryFrameUtil;
-import de.danielluedecke.zettelkasten.util.PlatformUtil;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JColorChooser;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
+import de.danielluedecke.zettelkasten.util.*;
+import org.jdesktop.application.Action;
+
+import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.undo.UndoManager;
-import org.jdesktop.application.Action;
+import java.awt.*;
+import java.awt.event.*;
 
 /**
  *
@@ -405,7 +391,7 @@ public class CModifyDesktopEntry extends javax.swing.JFrame implements WindowLis
         // and remove border from the main panel
         mainPanel.setBorder(null);
         // init toolbar button array
-        javax.swing.JButton toolbarButtons[] = new javax.swing.JButton[] {
+        javax.swing.JButton[] toolbarButtons = new javax.swing.JButton[] {
             tb_cut, tb_copy, tb_paste, tb_selectall, tb_undo, tb_redo,
             tb_bold, tb_italic, tb_underline, tb_strike
         };
